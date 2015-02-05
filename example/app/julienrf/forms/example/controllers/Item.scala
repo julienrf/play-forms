@@ -2,7 +2,7 @@ package julienrf.forms.example.controllers
 
 import julienrf.forms.Reads.PathOps
 import julienrf.forms.rules.UsualRules._
-import julienrf.forms.ui.Ui
+import julienrf.forms.ui.Input
 import play.api.data.mapping.Path
 import play.api.http.Writeable
 import play.api.mvc.{Codec, Action, Controller}
@@ -19,9 +19,9 @@ object Item extends Controller {
   )
 
   val itemUi = Rec(
-    name = Ui.fromReads(itemReads.name),
-    price = Ui.fromReads(itemReads.price),
-    description = Ui.fromReads(itemReads.description)
+    name = Input.fromReads(itemReads.name),
+    price = Input.fromReads(itemReads.price),
+    description = Input.fromReads(itemReads.description)
   )
 
   val form = Action {
@@ -32,7 +32,7 @@ object Item extends Controller {
     //   <input type="number" name="price" min="42" required="required" />
     //   <input type="text" name="description" />
     // </form>
-    Ok(Ui.form(routes.Item.submit())(itemUi.name, itemUi.price, itemUi.description))
+    Ok(Input.form(routes.Item.submit())(itemUi.name, itemUi.price, itemUi.description))
   }
 
   val submit = Action {

@@ -11,7 +11,8 @@ val forms = project
     libraryDependencies ++= Seq(
       "io.github.jto" %% "validation-core" % "1.0-1c770f4",
       "com.scalatags" %% "scalatags" % "0.4.2",
-      "com.typesafe.play" %% "play" % "2.3.7"
+      "com.typesafe.play" %% "play" % "2.3.7",
+      "org.scalacheck" %% "scalacheck" % "1.12.1" % "test"
     )
   )
 
@@ -26,3 +27,4 @@ val example = project
 val `play-forms` = project.in(file("."))
   .settings(commonSettings: _*)
   .dependsOn(forms)
+  .aggregate(forms)
