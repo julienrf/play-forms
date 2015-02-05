@@ -10,19 +10,23 @@ object Ui {
   import scalatags.Text.{attrs, tags, Modifier}
   import scalatags.Text.all._
 
-  def fromReads[O : InputAttrs](reads: Reads[O]): Ui = {
+  def fromReads[A : Mandatory : InputType](reads: Reads[A]): Ui = {
     val modifiers = Seq(
-      attrs.`type` := InputAttrs[O].InputType.tpe,
+      attrs.`type` := InputType[A].tpe,
       attrs.name := reads.path.path.mkString(".") // FIXME Check that it works with all kinds of [[PathNode]]
-    ) ++ validationAttributes(reads.rule) ++ (if (InputAttrs[O].Mandatory.value) Seq(attrs.required := "required") else Nil) // TODO Handle required attr in validationAttributes
+    ) ++ validationAttrs(reads.rule)
     Ui(
       input = tags.input(modifiers: _*)
     )
   }
 
-  def validationAttributes[A, B](rule: Rule[A, B]): Seq[Modifier] = {
+  def validationAttrs[A : Mandatory](rule: Rule[_, A]): Seq[Modifier] =
+    if (Mandatory[A].value) validationAttrsFromRules(rule) :+ (attrs.required := "required")
+    else validationAttrsFromRules(rule)
+
+  def validationAttrsFromRules(rule: Rule[_, _]): Seq[Modifier] = {
     rule match {
-      case AndThen(rule1, rule2) => validationAttributes(rule1) ++ validationAttributes(rule2)
+      case AndThen(rule1, rule2) => validationAttrsFromRules(rule1) ++ validationAttrsFromRules(rule2)
       case Min(num) => Seq("min".attr := num.toString)
       case _ => Seq.empty
     }
