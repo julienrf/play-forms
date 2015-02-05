@@ -13,9 +13,9 @@ case class Item(name: String, price: Int, description: Option[String])
 object Item extends Controller {
 
   val itemReads = Rec(
-    name = (Path \ "name").read(id[String]),
-    price = (Path \ "price").read(toInt >>> min(42)),
-    description = (Path \ "description").read(opt(id[String]))
+    name = (Path \ "name").read(text),
+    price = (Path \ "price").read(int >>> min(42)),
+    description = (Path \ "description").read(opt(text))
   )
 
   val itemUi = Rec(

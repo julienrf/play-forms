@@ -15,7 +15,8 @@ case class Min(n: Int) extends Rule[Int, Int](a => if (a >= n) Success(a) else F
 case class Opt[A, B](rule: Rule[A, B]) extends Rule[A, Option[B]](a => Success(rule.run(a).toOption))
 
 object UsualRules {
-  val toInt: Rule[String, Int] = ToInt
+  val text: Rule[String, String] = Id[String]()
+  val int: Rule[String, Int] = ToInt
   def opt[A, B](rule: Rule[A, B]): Rule[A, Option[B]] = Opt(rule)
   def min(n: Int): Rule[Int, Int] = Min(n)
   def id[A]: Rule[A, A] = Id[A]()
