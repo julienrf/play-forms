@@ -1,7 +1,7 @@
 package julienrf.forms.ui
 
 import julienrf.forms.Reads
-import julienrf.forms.rules.{AndThen, Min, Rule}
+import julienrf.forms.rules.{Opt, AndThen, Min, Rule}
 import play.api.mvc.Call
 
 case class Input(tag: scalatags.Text.Tag)
@@ -28,6 +28,7 @@ object Input {
     rule match {
       case AndThen(rule1, rule2) => validationAttrsFromRules(rule1) ++ validationAttrsFromRules(rule2)
       case Min(num) => Seq("min".attr := num.toString)
+      case Opt(rule) => validationAttrsFromRules(rule)
       case _ => Seq.empty
     }
 
