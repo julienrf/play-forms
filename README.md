@@ -10,6 +10,7 @@ The design of the Play built-in form API suffers from several flaws:
     - the HTML UI can not be derived from the `Form` definition ;
     - `Form`s do not compose ;
 - It is not **type safe** (it is therefore not refactoring-proof).
+- `FieldConstructor` is a mess.
 
 ## Installation
 

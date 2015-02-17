@@ -1,6 +1,7 @@
 package julienrf.forms.rules
 
 import play.api.data.mapping.{Failure, Success}
+import play.api.libs.functional.Functor
 
 import scala.util.control.NonFatal
 
@@ -19,6 +20,10 @@ object Result {
       case Success(a) => f(a)
       case Failure(e) => Failure(e)
     }
+  }
+
+  implicit val functor: Functor[Result] = new Functor[Result] {
+    def fmap[A, B](m: Result[A], f: (A) => B) = m.map(f)
   }
   
   
