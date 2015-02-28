@@ -22,14 +22,14 @@ object Item extends Controller {
   def show(fields: Fields): Tag = {
     import scalatags.Text.{attrs, tags}
     import scalatags.Text.all._
-    val call = routes.Item.submitForm()
+    val call = routes.Item.submission()
     tags.form(attrs.action := call.url, attrs.method := call.method)(
       fields.html,
       tags.button("Submit")
     )
   }
 
-  val showForm = Action {
+  val create = Action {
     // Generates the following markup
     // <form action="/" method="POST">
     //   <input type="text" name="name" required="required" />
@@ -39,7 +39,12 @@ object Item extends Controller {
     Ok(show(itemForm.empty))
   }
 
-  val submitForm = Action { request =>
+  val edit = Action {
+    val item = Item("foo", 50, Some("description"))
+    Ok(show(itemForm.unbind(item)))
+  }
+
+  val submission = Action { request =>
     request.body match {
       case AnyContentAsFormUrlEncoded(data) =>
         itemForm.bind(data) match {
