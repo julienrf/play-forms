@@ -1,2 +1,2 @@
-GET        /        julienrf.forms.example.controllers.Item.form
-POST       /        julienrf.forms.example.controllers.Item.submit
+GET        /        julienrf.forms.example.controllers.Item.showForm
+POST       /        julienrf.forms.example.controllers.Item.submitForm
