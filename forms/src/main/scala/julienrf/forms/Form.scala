@@ -5,12 +5,17 @@ import julienrf.forms.ui.{Mandatory, Field, InputType}
 import play.api.data.mapping.{Failure, Success}
 import play.api.libs.functional.{FunctionalCanBuild, InvariantFunctor, ~}
 
-// FIXME abstract over Fields (we just need a SemiGroup)
+// FIXME abstract over FormUi (we just need a SemiGroup)
+// TODO Add a bodyParser(errors: Fields): BodyParser[A] method
 trait Form[A] {
-  def bind(data: FormData): Either[Fields, A]
-  def unbind(a: A): Fields
-  def empty: Fields
+  def bind(data: FormData): Either[FormUi, A]
+  def unbind(a: A): FormUi
+  def empty: FormUi
 }
+
+// TODO Form composition
+abstract class Composite[A](key: String, form: Form[A]) extends Form[A]
+abstract class Leaf[A](field: (String, Rule[(FormData, String), A])) extends Form[A]
 
 object Form {
 
@@ -48,7 +53,7 @@ object Form {
       }
     }
 
-  def apply[A : InputType : Mandatory](name: String, rule: Rule[(FormData, String), A], f: Field => Fields): Form[A] = new Form[A] {
+  def field[A : InputType : Mandatory](name: String, rule: Rule[(FormData, String), A], f: Field => FormUi): Form[A] = new Form[A] {
     val unit = Field(name, rule)
     def bind(data: FormData) = rule.run((data, name)) match {
       case Success(a) => Right(a)
@@ -60,6 +65,6 @@ object Form {
 
 }
 
-case class Fields(html: Seq[scalatags.Text.Modifier]) { lhs =>
-  def ++ (rhs: Fields): Fields = Fields(lhs.html ++ rhs.html)
+case class FormUi(html: Seq[scalatags.Text.Modifier]) { lhs =>
+  def ++ (rhs: FormUi): FormUi = FormUi(lhs.html ++ rhs.html)
 }

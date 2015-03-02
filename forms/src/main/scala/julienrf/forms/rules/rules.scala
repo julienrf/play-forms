@@ -17,7 +17,7 @@ sealed abstract class Rule[A, B](val run: A => Result[B], val show: B => String)
 }
 
 case object Head extends Rule[(FormData, String), String]({ case (data, key) =>
-  data.get(key).flatMap(_.headOption) match {
+  data.get(key).flatMap(_.headOption).filter(_.nonEmpty) match {
     case Some(s) => Success(s)
     case None => Failure(Seq(Error.Required))
   }

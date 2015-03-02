@@ -1,14 +1,14 @@
 package julienrf.forms.ui
 
-import julienrf.forms.Fields
+import julienrf.forms.FormUi
 import play.api.mvc.Call
 
 object Ui {
   import scalatags.Text.{attrs, tags, Modifier}
   import scalatags.Text.all._
 
-  def input(field: Field): Fields = {
-    Fields(Seq(
+  def input(field: Field): FormUi = {
+    FormUi(Seq(
       tags.input(
         attrs.`type` := field.tpe,
         attrs.name := field.name,
