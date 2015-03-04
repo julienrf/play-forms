@@ -2,15 +2,46 @@ package julienrf.forms.example.controllers
 
 import julienrf.forms.Form.field
 import julienrf.forms.rules.UsualRules._
-import julienrf.forms.ui.Ui.input
-import julienrf.forms.FormUi
+import julienrf.forms.ui.InputType
+import julienrf.forms.ui.Input.input
+import julienrf.forms.ui.Select.{select, options, enumOptions}
+import julienrf.forms.{Form, FormUi}
 import play.api.http.Writeable
 import play.api.libs.functional.syntax._
-import play.api.mvc.{Action, Codec, Controller}
+import play.api.mvc._
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 
+import scala.concurrent.Future
 import scalatags.Text.Tag
 
-case class Item(name: String, price: Int, description: Option[String])
+case class Item(name: String, price: Int, description: Option[String], category: Category)
+
+sealed trait Category
+case object Gardening extends Category
+case object Furniture extends Category
+
+object Category {
+
+  val values: Set[Category] = Set(Gardening, Furniture) // TODO Write a macro for that
+
+  // TODO Write a macro for that
+  val keys: Category => String = {
+    case Gardening => "gardening"
+    case Furniture => "furniture"
+  }
+
+  // TODO Write a macro for that
+  val labels: Category => String = {
+    case Gardening => "Gardening"
+    case Furniture => "Furniture"
+  }
+
+  val valuesToKey: Map[Category, String] = (values map (v => v -> keys(v))).toMap
+
+  // TODO Remove this
+  implicit val inputType: InputType[Category] = InputType("")
+
+}
 
 object Item extends Controller {
 
@@ -22,13 +53,17 @@ object Item extends Controller {
    *   - a validation rule,
    *   - an HTML user interface.
    *
-   * In the following code the user interface is just the HTML `input` tag.
+   * In the following code the user interface is just an HTML `input` or `select` tag.
    */
   val itemForm = (
     field("name", text, input) ~ // A text field
     field("price", int >=> min(42), input) ~ // A number that must be greater or equal to 42
-    field("description", text.?, input) // An optional text field
+    field("description", text.?, input) ~ // An optional text field
+    field("category", oneOf(Category.valuesToKey), select(options(enumOptions(Category.values, Category.keys, Category.labels))))
   )(Item.apply, unlift(Item.unapply))
+
+  // itemForm has type Form[Item], that is a form that handles Items
+  itemForm: Form[Item]
 
   /**
    * Generate the HTML markup of the form:
@@ -38,6 +73,11 @@ object Item extends Controller {
    *     <input type="text" name="name" required="required" />
    *     <input type="number" name="price" min="42" required="required" />
    *     <input type="text" name="description" />
+   *     <select required="required">
+   *       <option value=""></option>
+   *       <option value="gardening">Gardening</option>
+   *       <option value="furniture">Furniture</option>
+   *     </select>
    *   </form>
    * }}}
    *
@@ -52,7 +92,7 @@ object Item extends Controller {
    * Similarly, generate the HTML markup of a pre-filled form using the `unbind` method.
    */
   val edit = Action {
-    val item = Item("foo", 50, Some("description"))
+    val item = Item("foo", 50, Some("description"), Furniture)
     Ok(htmlForm(itemForm.unbind(item)))
   }
 
@@ -66,6 +106,13 @@ object Item extends Controller {
       case Right(item) => Ok(item.toString)
     }
   }
+
+  val submission2 = Action(bodyParser(itemForm, htmlForm)) { request =>
+    val item = request.body
+    Ok(item.toString)
+  }
+
+  def bodyParser[A](form: Form[A], html: FormUi => Tag): BodyParser[A] = form.bodyParser(errors => Future.successful(BadRequest(html(errors))))
 
   implicit val writeableTag: Writeable[Tag] = Writeable((tag: Tag) => tag.toString().getBytes(Codec.utf_8.charset), Some(HTML))
 

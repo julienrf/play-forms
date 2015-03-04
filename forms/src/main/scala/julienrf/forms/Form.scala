@@ -1,16 +1,23 @@
 package julienrf.forms
 
 import julienrf.forms.rules.Rule
-import julienrf.forms.ui.{Mandatory, Field, InputType}
+import julienrf.forms.ui.{Input, Mandatory, InputType}
 import play.api.data.mapping.{Failure, Success}
 import play.api.libs.functional.{FunctionalCanBuild, InvariantFunctor, ~}
+import play.api.mvc.{BodyParsers, BodyParser, Result}
+
+import scala.concurrent.{ExecutionContext, Future}
 
 // FIXME abstract over FormUi (we just need a SemiGroup)
-// TODO Add a bodyParser(errors: Fields): BodyParser[A] method
 trait Form[A] {
   def bind(data: FormData): Either[FormUi, A]
   def unbind(a: A): FormUi
   def empty: FormUi
+
+  def bodyParser(errorHandler: FormUi => Future[Result])(implicit ec: ExecutionContext): BodyParser[A] = BodyParsers.parse.urlFormEncoded.validateM(data => bind(data) match {
+    case Left(errors) => errorHandler(errors).map(Left(_))
+    case Right(a) => Future.successful(Right(a))
+  })
 }
 
 // TODO Form composition
@@ -53,8 +60,8 @@ object Form {
       }
     }
 
-  def field[A : InputType : Mandatory](name: String, rule: Rule[(FormData, String), A], f: Field => FormUi): Form[A] = new Form[A] {
-    val unit = Field(name, rule)
+  def field[A : InputType : Mandatory](name: String, rule: Rule[(FormData, String), A], f: Input.Field => FormUi): Form[A] = new Form[A] {
+    val unit = Input.Field(name, rule)
     def bind(data: FormData) = rule.run((data, name)) match {
       case Success(a) => Right(a)
       case Failure(errors) => Left(f(unit.copy(errors = unit.errors ++ errors)))

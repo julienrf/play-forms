@@ -4,15 +4,20 @@ import julienrf.forms.FormData
 import julienrf.forms.rules.Result.ResultOps
 import play.api.data.mapping.{Failure, Success}
 
+// FIXME Separate run and show and make B covariant and A contravariant?
 sealed abstract class Rule[A, B](val run: A => Result[B], val show: B => String) {
 
-  def >=> [C](that: Rule[B, C]): Rule[A, C] = AndThen(this, that)
+  final def >=> [C](that: Rule[B, C]): Rule[A, C] = AndThen(this, that)
+
+  final def andThen[C](that: Rule[B, C]): Rule[A, C] = this >=> that
 
 //  def && [C](that: Rule[A, C]): Rule[A, (B, C)] = And(this, that)
 
-  def || (that: Rule[A, B]): Rule[A, B] = Or(this, that)
+  final def || (that: Rule[A, B]): Rule[A, B] = Or(this, that)
 
-  def ? : Rule[A, Option[B]] = Opt(this)
+  final def ? : Rule[A, Option[B]] = Opt(this)
+
+  final def opt: Rule[A, Option[B]] = ?
 
 }
 
@@ -31,15 +36,33 @@ case object ToInt extends Rule[String, Int](s => Result.fromTryCatch(s.toInt), _
 case class Min(n: Int) extends Rule[Int, Int](a => if (a >= n) Success(a) else Failure(Seq(Error.MustBeAtLeast(n))), _.toString)
 case class Opt[A, B](rule: Rule[A, B]) extends Rule[A, Option[B]](a => Success(rule.run(a).toOption), { case Some(b) => rule.show(b); case None => "" })
 case class InMap[A, B](rule: Rule[FormData, A], f1: A => B, f2: B => A) extends Rule[FormData, B](d => rule.run(d).map(f1), f2 andThen rule.show)
+case class OneOf[A](valuesToKey: Map[A, String]) extends Rule[String, A]({
+  val keysToValue = (valuesToKey map { case (v, k) => k -> v }).toMap
+  keysToValue.get _ andThen {
+    case Some(a) => Success(a)
+    case None => Failure(Seq(Error.Undefined))
+  }
+}, valuesToKey.apply) {
+  require (valuesToKey.values.to[Seq].distinct.size == valuesToKey.values.size)
+}
 
 object UsualRules {
   val text: Rule[(FormData, String), String] = Head
   val int: Rule[(FormData, String), Int] = Head >=> ToInt
 //  def and[A, B, C](lhs: Rule[A, B], rhs: Rule[A, C]): Rule[A, (B, C)] = And(lhs, rhs)
   def min(n: Int): Rule[Int, Int] = Min(n)
+
+//  def partialFunction[A, B](f: PartialFunction[A, B]): A => Result[B] = a => {
+//    if (f.isDefinedAt(a)) Success(f(a))
+//    else Failure(Seq(Error.Undefined))
+//  }
+
+  def oneOf[A](valuesToKey: Map[A, String]): Rule[(FormData, String), A] = Head >=> OneOf(valuesToKey)
+
 }
 
 object Error {
   case object Required extends Throwable
   case class MustBeAtLeast(n: Int) extends Throwable
+  case object Undefined extends Throwable
 }
