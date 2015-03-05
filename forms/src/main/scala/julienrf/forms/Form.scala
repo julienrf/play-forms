@@ -1,7 +1,7 @@
 package julienrf.forms
 
 import julienrf.forms.rules.Rule
-import julienrf.forms.ui.{Input, Mandatory, InputType}
+import julienrf.forms.presenters.Presenter
 import play.api.libs.functional.{FunctionalCanBuild, InvariantFunctor, ~}
 import play.api.mvc.{BodyParsers, BodyParser, Result}
 
@@ -60,14 +60,14 @@ object Form {
       }
     }
 
-  def field[A : InputType : Mandatory](name: String, rule: Rule[(FormData, String), A], f: Input.Field => FormUi): Form[A] = new Form[A] {
-    val unit = Input.Field(name, rule)
+  def field[A](name: String, rule: Rule[(FormData, String), A])(presenter: Presenter[A]): Form[A] = new Form[A] {
+    val f = presenter.field(name, rule)
     def bind(data: FormData) = rule.run((data, name)) match {
       case Success(a) => Right(a)
-      case Failure(error) => Left(f(unit.copy(errors = unit.errors :+ error)))
+      case Failure(error) => Left(presenter render f.addingError(error))
     }
-    def unbind(a: A) = f(unit.copy(value = rule.show(a)))
-    def empty = f(unit)
+    def unbind(a: A) = presenter render f.withValue(rule.show(a))
+    def empty = presenter render f
   }
 
 }

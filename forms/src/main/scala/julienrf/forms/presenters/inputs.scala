@@ -1,4 +1,4 @@
-package julienrf.forms.ui
+package julienrf.forms.presenters
 
 case class InputType[A](tpe: String)
 

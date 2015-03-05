@@ -2,9 +2,9 @@ package julienrf.forms.example.controllers
 
 import julienrf.forms.Form.field
 import julienrf.forms.rules.UsualRules._
-import julienrf.forms.ui.InputType
-import julienrf.forms.ui.Input.input
-import julienrf.forms.ui.Select.{select, options, enumOptions}
+import julienrf.forms.presenters.InputType
+import julienrf.forms.presenters.Input.input
+import julienrf.forms.presenters.Select.{select, options, enumOptions}
 import julienrf.forms.{Form, FormUi}
 import play.api.http.Writeable
 import play.api.libs.functional.syntax._
@@ -38,9 +38,6 @@ object Category {
 
   val valuesToKey: Map[Category, String] = (values map (v => v -> keys(v))).toMap
 
-  // TODO Remove this
-  implicit val inputType: InputType[Category] = InputType("")
-
 }
 
 object Item extends Controller {
@@ -56,10 +53,10 @@ object Item extends Controller {
    * In the following code the user interface is just an HTML `input` or `select` tag.
    */
   val itemForm = (
-    field("name", text, input) ~ // A text field
-    field("price", int >=> min(42), input) ~ // A number that must be greater or equal to 42
-    field("description", text.?, input) ~ // An optional text field
-    field("category", oneOf(Category.valuesToKey), select(options(enumOptions(Category.values, Category.keys, Category.labels))))
+    field("name", text)(input) ~ // A text field
+    field("price", int >=> min(42))(input) ~ // A number that must be greater or equal to 42
+    field("description", text.?)(input) ~ // An optional text field
+    field("category", oneOf(Category.valuesToKey))(select(options(enumOptions(Category.values, Category.keys, Category.labels))))
   )(Item.apply, unlift(Item.unapply))
 
   // itemForm has type Form[Item], that is a form that handles Items

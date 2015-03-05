@@ -1,4 +1,4 @@
-package julienrf.forms.ui
+package julienrf.forms.presenters
 
 import julienrf.forms.{Form, FormData}
 import julienrf.forms.rules.Rule
@@ -27,8 +27,8 @@ object FieldTest extends Properties("Field") {
     def p[A : Mandatory : InputType](nameAndMaybeValues: (String, Option[String])*)(rule: Rule[(FormData, String), A]): Boolean = {
       val path = "foo"
       val attrsWithoutRequired = nameAndMaybeValues.filter { case (n, _) => n != "required" }
-      val optRemovesRequired = hasOnlyValidationAttrs(attrsWithoutRequired: _*)(Form.field(path, rule.?, Input.input))
-      hasOnlyValidationAttrs(nameAndMaybeValues: _*)(Form.field(path, rule, Input.input)) && optRemovesRequired
+      val optRemovesRequired = hasOnlyValidationAttrs(attrsWithoutRequired: _*)(Form.field(path, rule.?)(Input.input))
+      hasOnlyValidationAttrs(nameAndMaybeValues: _*)(Form.field(path, rule)(Input.input)) && optRemovesRequired
     }
 
     p("required" -> None)(text) &&
@@ -40,7 +40,7 @@ object FieldTest extends Properties("Field") {
 
   property("derive the input type according to the Reads type") = {
     def p[A : Mandatory : InputType](tpe: String)(rule: Rule[(FormData, String), A]): Boolean =
-      hasAttr("type", Some(tpe))(Form.field("foo", rule, Input.input).empty.html)
+      hasAttr("type", Some(tpe))(Form.field("foo", rule)(Input.input).empty.html)
 
     p("text")(text) &&
     p("number")(int)
