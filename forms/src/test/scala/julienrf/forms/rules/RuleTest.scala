@@ -4,6 +4,8 @@ import julienrf.forms.FormData
 import org.scalacheck.{Prop, Properties}
 import org.scalacheck.Prop._
 
+import scala.util.{Failure, Success, Try}
+
 object RuleTest extends Properties("Rule") {
 
   val text = forAll { (s: String, k: String) =>
@@ -45,7 +47,10 @@ object RuleTest extends Properties("Rule") {
   def data(k: String, v: String): (FormData, String) = (Map(k -> Seq(v)), k)
   def noData(k: String): (FormData, String) = (Map.empty[String, Seq[String]], k)
   def emptyData(k: String): (FormData, String) = (Map(k -> Seq("")), k)
-  def succeeds[A](a: A, result: Result[A]): Prop = result.fold[Prop](_ => falsified, _ == a)
-  def failed[A](result: Result[A]): Prop = result.isFailure
+  def succeeds[A](a: A, result: Try[A]): Prop = result match {
+    case Success(ra) => a == ra
+    case Failure(_) => falsified
+  }
+  def failed[A](result: Try[A]): Prop = result.isFailure
 
 }

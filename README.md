@@ -1,6 +1,7 @@
 # play-forms
 
-Another way to handle HTML forms in your Play application. See the [features](https://github.com/julienrf/play-forms/tree/master/forms/src/test/scala/julienrf/forms) for more details, or just dig in the code of the [example](https://github.com/julienrf/play-forms/tree/master/example).
+Another way to handle HTML forms in your Play application. See the [features](https://github.com/julienrf/play-forms/tree/master/forms/src/test/scala/julienrf/forms)
+for more details, or just dig in the code of the [example](https://github.com/julienrf/play-forms/tree/master/example).
 
 This is a work in progress. Next steps are the following:
 

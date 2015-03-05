@@ -2,11 +2,11 @@ package julienrf.forms
 
 import julienrf.forms.rules.Rule
 import julienrf.forms.ui.{Input, Mandatory, InputType}
-import play.api.data.mapping.{Failure, Success}
 import play.api.libs.functional.{FunctionalCanBuild, InvariantFunctor, ~}
 import play.api.mvc.{BodyParsers, BodyParser, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 // FIXME abstract over FormUi (we just need a SemiGroup)
 trait Form[A] {
@@ -64,7 +64,7 @@ object Form {
     val unit = Input.Field(name, rule)
     def bind(data: FormData) = rule.run((data, name)) match {
       case Success(a) => Right(a)
-      case Failure(errors) => Left(f(unit.copy(errors = unit.errors ++ errors)))
+      case Failure(error) => Left(f(unit.copy(errors = unit.errors :+ error)))
     }
     def unbind(a: A) = f(unit.copy(value = rule.show(a)))
     def empty = f(unit)
