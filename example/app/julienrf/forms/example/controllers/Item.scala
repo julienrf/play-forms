@@ -22,21 +22,10 @@ case object Gardening extends Category
 case object Furniture extends Category
 
 object Category {
-
-  val values: Set[Category] = Set(Gardening, Furniture) // TODO Write a macro for that
-
-  // TODO Write a macro for that
-  val keys: Category => String = {
-    case Gardening => "gardening"
-    case Furniture => "furniture"
-  }
-
-  // TODO Write a macro for that
-  val labels: Category => String = {
-    case Gardening => "Gardening"
-    case Furniture => "Furniture"
-  }
-
+  // TODO Write a macro for all that
+  val values: Set[Category] = Set(Gardening, Furniture)
+  val keys: Category => String = { case Gardening => "gardening" case Furniture => "furniture" }
+  val labels: Category => String = { case Gardening => "Gardening" case Furniture => "Furniture" }
   val valuesToKey: Map[Category, String] = (values map (v => v -> keys(v))).toMap
 }
 
@@ -74,10 +63,10 @@ object Item extends Controller {
    *
    * {{{
    *   <form action="/" method="POST">
-   *     <input type="text" name="name" required="required" />
-   *     <input type="number" name="price" min="42" required="required" />
-   *     <input type="text" name="description" />
-   *     <select required="required">
+   *     <input type="text" name="detail.name" required="required" />
+   *     <input type="number" name="detail.price" min="42" required="required" />
+   *     <input type="text" name="detail.description" />
+   *     <select name="category" required="required">
    *       <option value=""></option>
    *       <option value="gardening">Gardening</option>
    *       <option value="furniture">Furniture</option>
