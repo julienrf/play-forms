@@ -1,8 +1,7 @@
 package julienrf.forms.example.controllers
 
-import julienrf.forms.Form.field
+import julienrf.forms.Form.{field, form}
 import julienrf.forms.rules.UsualRules._
-import julienrf.forms.presenters.InputType
 import julienrf.forms.presenters.Input.input
 import julienrf.forms.presenters.Select.{select, options, enumOptions}
 import julienrf.forms.{Form, FormUi}
@@ -14,7 +13,9 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import scalatags.Text.Tag
 
-case class Item(name: String, price: Int, description: Option[String], category: Category)
+case class Item(detail: ItemDetail, category: Category)
+
+case class ItemDetail(name: String, price: Int, description: Option[String])
 
 sealed trait Category
 case object Gardening extends Category
@@ -37,7 +38,6 @@ object Category {
   }
 
   val valuesToKey: Map[Category, String] = (values map (v => v -> keys(v))).toMap
-
 }
 
 object Item extends Controller {
@@ -50,17 +50,24 @@ object Item extends Controller {
    *   - a validation rule,
    *   - an HTML user interface.
    *
-   * In the following code the user interface is just an HTML `input` or `select` tag.
+   * In the following code the user interface is just an HTML `input` tag.
    */
-  val itemForm = (
+  val itemDetailForm = (
     field("name", text)(input) ~ // A text field
     field("price", int >=> min(42))(input) ~ // A number that must be greater or equal to 42
-    field("description", text.?)(input) ~ // An optional text field
-    field("category", oneOf(Category.valuesToKey))(select(options(enumOptions(Category.values, Category.keys, Category.labels))))
-  )(Item.apply, unlift(Item.unapply))
+    field("description", text.?)(input) // An optional text field
+  )(ItemDetail.apply, unlift(ItemDetail.unapply))
 
   // itemForm has type Form[Item], that is a form that handles Items
-  itemForm: Form[Item]
+  itemDetailForm: Form[ItemDetail]
+
+  /**
+   * The form definition for the whole item assembles the `ìtemDetailForm` form with a category field.
+   */
+  val itemForm = (
+    form("detail", itemDetailForm) ~
+    field("category", oneOf(Category.valuesToKey))(select(options(enumOptions(Category.values, Category.keys, Category.labels))))
+  )(Item.apply, unlift(Item.unapply))
 
   /**
    * Generate the HTML markup of the form:
@@ -89,7 +96,7 @@ object Item extends Controller {
    * Similarly, generate the HTML markup of a pre-filled form using the `unbind` method.
    */
   val edit = Action {
-    val item = Item("foo", 50, Some("description"), Furniture)
+    val item = Item(ItemDetail("foo", 50, Some("description")), Furniture)
     Ok(htmlForm(itemForm.unbind(item)))
   }
 
@@ -104,7 +111,7 @@ object Item extends Controller {
     }
   }
 
-  val submission2 = Action(bodyParser(itemForm, htmlForm)) { request =>
+  val submission2 = Action(bodyParser(itemDetailForm, htmlForm)) { request =>
     val item = request.body
     Ok(item.toString)
   }
