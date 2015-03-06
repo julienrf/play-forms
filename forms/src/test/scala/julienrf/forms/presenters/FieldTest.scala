@@ -2,7 +2,7 @@ package julienrf.forms.presenters
 
 import julienrf.forms.{Form, FormData}
 import julienrf.forms.rules.Rule
-import julienrf.forms.rules.UsualRules.{text, int, min}
+import julienrf.forms.rules.Rule.{text, int, min}
 import org.apache.commons.lang3.StringEscapeUtils
 import org.scalacheck.Properties
 import org.scalacheck.Prop._

@@ -1,7 +1,7 @@
 package julienrf.forms.example.controllers
 
 import julienrf.forms.Form.{field, form}
-import julienrf.forms.rules.UsualRules._
+import julienrf.forms.rules.Rule._
 import julienrf.forms.presenters.Input.input
 import julienrf.forms.presenters.Select.{select, options, enumOptions}
 import julienrf.forms.{Form, FormUi}
@@ -51,7 +51,7 @@ object Item extends Controller {
   itemDetailForm: Form[ItemDetail]
 
   /**
-   * The form definition for the whole item assembles the `ìtemDetailForm` form with a category field.
+   * The form definition for the whole item assembles the `ìtemDetailForm` form with a category field (which is a `select` tag).
    */
   val itemForm = (
     form("detail", itemDetailForm) ~

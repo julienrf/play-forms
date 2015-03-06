@@ -10,7 +10,7 @@ object RuleTest extends Properties("Rule") {
 
   val text = forAll { (s: String, k: String) =>
     (k.nonEmpty && s.nonEmpty) ==> {
-      val rule = UsualRules.text
+      val rule = Rule.text
       succeeds(s, rule.run(data(k, s))) &&
       rule.run(noData(k)).isFailure &&
       rule.run(emptyData(k)).isFailure
@@ -18,14 +18,14 @@ object RuleTest extends Properties("Rule") {
   }
   val int = forAll { (n: Int, k: String) =>
     k.nonEmpty ==> {
-      val rule = UsualRules.int
+      val rule = Rule.int
       succeeds(n, rule.run(data(k, rule.show(n)))) &&
       rule.run(noData(k)).isFailure
     }
   }
   val min = forAll { (n: Int, m: Int, k: String) =>
     k.nonEmpty ==> {
-      val rule = UsualRules.min(m)
+      val rule = Rule.min(m)
       val result = rule.run(n)
       if (n >= m) succeeds(n, result) else result.isFailure
     }
@@ -37,7 +37,7 @@ object RuleTest extends Properties("Rule") {
   val or = undecided
   val opt = {
     // FIXME I’d like to write forAll { (rule: Rule[A, B], a: A, b: B) => ... }
-    val rule = UsualRules.min(42)
+    val rule = Rule.min(42)
     rule.run(0).isFailure && succeeds(None, rule.?.run(0)) &&
     succeeds(42, rule.run(42)) && succeeds(Some(42), rule.?.run(42))
   }

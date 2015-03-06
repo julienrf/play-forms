@@ -46,7 +46,7 @@ case class OneOf[A](valuesToKey: Map[A, String]) extends Rule[String, A]({
   require (valuesToKey.values.to[Seq].distinct.size == valuesToKey.values.size)
 }
 
-object UsualRules {
+object Rule {
   val text: Rule[(FormData, String), String] = Head
   val int: Rule[(FormData, String), Int] = Head >=> ToInt
 //  def and[A, B, C](lhs: Rule[A, B], rhs: Rule[A, C]): Rule[A, (B, C)] = And(lhs, rhs)

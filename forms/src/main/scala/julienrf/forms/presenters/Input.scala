@@ -3,7 +3,7 @@ package julienrf.forms.presenters
 import julienrf.forms._
 import julienrf.forms.rules._
 
-abstract class Input[A : InputType : Mandatory] extends Presenter[A] {
+abstract class Input[A : Mandatory] extends Presenter[A] {
   case class Field(name: String, value: String, validationAttrs: Map[String, String], errors: Seq[Throwable]) extends FieldLike {
     def addingError(error: Throwable) = copy(errors = errors :+ error)
     def withValue(value: String) = copy(value = value)

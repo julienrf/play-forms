@@ -5,12 +5,12 @@ for more details, or just dig in the code of the [example](https://github.com/ju
 
 This is a work in progress. Next steps are the following:
 
-- [x] different kinds of HTML controls (input, select, etc.) ;
-- [x] tie `Input.Field` and `Input` together ;
-- [x] form composition ;
-- [ ] richer UI controls (with validation error messages, labels, etc.).
+- [x] different kinds of HTML controls (input, select, etc.)
+- [x] tie `Input.Field` and `Input` together
+- [x] form composition
+- [ ] richer UI controls (with validation error messages, labels, etc.)
 - [ ] field value should be `Option[String]` rather than `String`
-- [ ] `A` => `Rule[(A, B), C]` => `Rule[B, C]` ;
+- [ ] `A` => `Rule[(A, B), C]` => `Rule[B, C]`
 
 ## Motivation
 

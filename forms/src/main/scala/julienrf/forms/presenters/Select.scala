@@ -3,7 +3,7 @@ package julienrf.forms.presenters
 import julienrf.forms._
 import julienrf.forms.rules.Rule
 
-abstract class Select[A : Mandatory] extends Presenter[A] {
+abstract class Select[A] extends Presenter[A] {
   case class Field(name: String, value: String, errors: Seq[Throwable]) extends FieldLike {
     def addingError(error: Throwable) = copy(errors = errors :+ error)
     def withValue(value: String) = copy(value = value)
