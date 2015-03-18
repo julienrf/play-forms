@@ -47,7 +47,7 @@ The library is built around three main concepts: `Form`s, `Rule`s and `Presenter
 
 #### Definition
 
-The main abstraction is given by the `[Form](http://julienrf.github.io/play-forms/0.0.0-SNAPSHOT/api/#julienrf.forms.Form)`
+The main abstraction is given by the [`Form[A]`](http://julienrf.github.io/play-forms/0.0.0-SNAPSHOT/api/#julienrf.forms.Form)
 type. A `Form[A]` is both a way to process a form submission to yield an `A` value **and** a way to display the form user interface.
 
 The simplest way to build such a value is to build a form with just one field:
@@ -148,7 +148,7 @@ Composition makes it possible to reuse not only the validation rules but also th
 
 ### Rules
 
-Each field of a form is associated to a `[Rule](http://julienrf.github.io/play-forms/0.0.0-SNAPSHOT/api/#julienrf.forms.rules.Rule)`.
+Each field of a form is associated to a [`Rule`](http://julienrf.github.io/play-forms/0.0.0-SNAPSHOT/api/#julienrf.forms.rules.Rule).
 This one defines the process that validates and transforms the encoded data of the form submission into a high-level
 data type.
 
@@ -181,7 +181,7 @@ Rule.int.?
 
 ### Presenters
 
-The last piece of the puzzle are `[Presenter](http://julienrf.github.io/play-forms/0.0.0-SNAPSHOT/api/#julienrf.forms.presenters.Presenter)`s.
+The last piece of the puzzle are [`Presenter`](http://julienrf.github.io/play-forms/0.0.0-SNAPSHOT/api/#julienrf.forms.presenters.Presenter)s.
 
 As its name suggests, a `Presenter[A]` defines how to present a field of type `A` to the client.
 
