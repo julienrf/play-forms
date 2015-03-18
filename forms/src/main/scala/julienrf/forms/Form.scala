@@ -21,7 +21,7 @@ sealed trait Form[A] {
   })
 }
 
-final case class Leaf[A](field: (String, Rule[(FormData, String), A]), presenter: Presenter[A]) extends Form[A] {
+final case class FieldForm[A](field: (String, Rule[(FormData, String), A]), presenter: Presenter[A]) extends Form[A] {
   val (name, rule) = field
   val f = presenter.field(name, rule)
   def bind(data: FormData) = rule.run((data, name)) match {
@@ -36,14 +36,14 @@ final case class Leaf[A](field: (String, Rule[(FormData, String), A]), presenter
 object Form {
 
   def field[A](name: String, rule: Rule[(FormData, String), A])(presenter: Presenter[A]): Form[A] =
-    Leaf((name, rule), presenter)
+    FieldForm((name, rule), presenter)
 
-    def form[A](key: String, fa: Form[A]): Form[A] =
-      fa match {
-        case Leaf((subKey, rule), presenter) => Leaf((s"$key.$subKey", rule), presenter)
-        case Form.InMap(fa, f1, f2) => Form.InMap(form(key, fa), f1, f2)
-        case Form.Apply(fa, fb) => Form.Apply(form(key, fa), form(key, fb))
-      }
+  def form[A](key: String, fa: Form[A]): Form[A] =
+    fa match {
+      case FieldForm((subKey, rule), presenter) => FieldForm((s"$key.$subKey", rule), presenter)
+      case Form.InMap(fa, f1, f2) => Form.InMap(form(key, fa), f1, f2)
+      case Form.Apply(fa, fb) => Form.Apply(form(key, fa), form(key, fb))
+    }
 
   /**
    * TODO
