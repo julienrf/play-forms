@@ -8,6 +8,7 @@ val `play-forms` = project.in(file("forms"))
   .settings(commonSettings: _*)
   .settings(
     name := "play-forms",
+    resolvers += "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases",
     libraryDependencies ++= Seq(
       "com.scalatags" %% "scalatags" % "0.4.2",
       "com.typesafe.play" %% "play" % "2.3.7",
