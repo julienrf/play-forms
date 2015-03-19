@@ -1,1 +1,7 @@
 language: scala
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/0ff5f63e6e5b634985bf
+    on_success: change
+    on_failure: always
