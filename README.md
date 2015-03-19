@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/julienrf/play-forms.png?label=ready&title=Ready)](https://waffle.io/julienrf/play-forms)
 # play-forms
 
 Another way to handle HTML forms in your Play application. See the [features](https://github.com/julienrf/play-forms/tree/master/forms/src/test/scala/julienrf/forms)
