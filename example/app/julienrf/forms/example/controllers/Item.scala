@@ -1,6 +1,7 @@
 package julienrf.forms.example.controllers
 
 import julienrf.forms.Form.{field, form}
+import julienrf.forms.presenters.PlayField
 import julienrf.forms.rules.Rule._
 import julienrf.forms.presenters.Input.input
 import julienrf.forms.presenters.Select.{select, options, enumOptions}
@@ -42,7 +43,7 @@ object Item extends Controller {
    * In the following code the user interface is just an HTML `input` tag.
    */
   val itemDetailForm = (
-    field("name", text)(input) ~ // A text field
+    field("name", text)(PlayField.inputText('_label -> "Name")) ~ // A text field
     field("price", int >=> min(42))(input) ~ // A number that must be greater or equal to 42
     field("description", text.?)(input) // An optional text field
   )(ItemDetail.apply, unlift(ItemDetail.unapply))
