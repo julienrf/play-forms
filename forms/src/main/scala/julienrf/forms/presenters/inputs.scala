@@ -15,7 +15,7 @@ case class Mandatory[A](value: Boolean)
 
 object Mandatory {
   implicit def mandatoryOption[A]: Mandatory[Option[A]] = Mandatory[Option[A]](value = false)
-  implicit def mandatory[A]: Mandatory[A] = Mandatory[A](value = true)
+  implicit def mandatory[A]: Mandatory[A] = Mandatory[A](value = true) // TODO Remove
 
   @inline def apply[A : Mandatory]: Mandatory[A] = implicitly[Mandatory[A]]
 }

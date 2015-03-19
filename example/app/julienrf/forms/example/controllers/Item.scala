@@ -1,10 +1,9 @@
 package julienrf.forms.example.controllers
 
 import julienrf.forms.Form.{field, form}
-import julienrf.forms.presenters.PlayField
+import julienrf.forms.presenters.Input.{options, enumOptions}
+import julienrf.forms.presenters.PlayField.{input, select}
 import julienrf.forms.rules.Rule._
-import julienrf.forms.presenters.Input.input
-import julienrf.forms.presenters.Select.{select, options, enumOptions}
 import julienrf.forms.{Form, FormUi}
 import play.api.http.Writeable
 import play.api.libs.functional.syntax._
@@ -40,12 +39,12 @@ object Item extends Controller {
    *   - a validation rule,
    *   - an HTML user interface.
    *
-   * In the following code the user interface is just an HTML `input` tag.
+   * In the following code the user interface is similar to the one produced by Play HTML forms helpers
    */
   val itemDetailForm = (
-    field("name", text)(PlayField.inputText('_label -> "Name")) ~ // A text field
-    field("price", int >=> min(42))(input) ~ // A number that must be greater or equal to 42
-    field("description", text.?)(input) // An optional text field
+    field("name", text)(input("Name")) ~ // A text field
+    field("price", int >=> min(42))(input("Price")) ~ // A number that must be greater or equal to 42
+    field("description", text.?)(input("Description")) // An optional text field
   )(ItemDetail.apply, unlift(ItemDetail.unapply))
 
   // itemForm has type Form[Item], that is a form that handles Items
@@ -56,27 +55,11 @@ object Item extends Controller {
    */
   val itemForm = (
     form("detail", itemDetailForm) ~
-    field("category", oneOf(Category.valuesToKey))(select(options(enumOptions(Category.values, Category.keys, Category.labels))))
+    field("category", oneOf(Category.valuesToKey))(select("Category", options(enumOptions(Category.values, Category.keys, Category.labels))))
   )(Item.apply, unlift(Item.unapply))
 
   /**
-   * Generate the HTML markup of the form:
-   *
-   * {{{
-   *   <form action="/" method="POST">
-   *     <input type="text" name="detail.name" required="required" />
-   *     <input type="number" name="detail.price" min="42" required="required" />
-   *     <input type="text" name="detail.description" />
-   *     <select name="category" required="required">
-   *       <option value=""></option>
-   *       <option value="gardening">Gardening</option>
-   *       <option value="furniture">Furniture</option>
-   *     </select>
-   *   </form>
-   * }}}
-   *
-   * Note that the input names just reuse those of the form definition, the HTML validation attributes
-   * are derived from the validation rules and the input types are derived from the field types.
+   * Generate the HTML markup of the form
    */
   val create = Action {
     Ok(htmlForm(itemForm.empty))

@@ -1,32 +1,37 @@
 package julienrf.forms.presenters
 
-import julienrf.forms.{FormUi, FormData}
+import julienrf.forms.FormUi
 import julienrf.forms.rules._
 
 /**
- * Replicates the HTML form helpers built-in with Play
- * Also fixes the problem with `optional(nonEmptyText)`
+ * Produces HTML similar to what form helpers built-in with Play produce, but with the following changes:
+ *  - Fixes the problem with `optional(nonEmptyText)`
+ *  - Adds HTML validation attributes to input tags
  */
 object PlayField {
 
   import scalatags.Text.all._
   import scalatags.Text.{attrs, tags}
 
+  /**
+   * Similar to Play’s `inputText` or `inputDate`. It automatically sets the input type according
+   * to the type parameter `A`. It works with numbers too.
+   */
   // TODO Handle id, help, showConstraints, error, showErrors and additionalInputAttrs
-  def inputText[A : Mandatory : InputType](args: (Symbol, String)*): Presenter[A] = new Presenter[A] {
-    val argsMap = args.toMap
-    case class Field(name: String, value: String, label: Option[String], errors: Seq[Throwable], infos: Seq[String]) extends FieldLike {
-      def addingError(error: Throwable) = copy(errors = errors :+ error)
-      def withValue(value: String) = copy(value = value)
-    }
-    def field(name: String, rule: Rule[(FormData, String), A]) = Field(name, "", argsMap.get('_label), Seq.empty, infos(rule))
-    def render(field: Field) =
+  def input[A : Mandatory : InputType](label: String): Presenter[A] =
+    withPresenter((name, rule, value, errors) => Input.input[A]("id" -> name), label)
+
+  def select[A : Mandatory](label: String, opts: Option[String] => Seq[scalatags.Text.Tag]): Presenter[A] =
+    withPresenter((name, rule, value, errors) => Input.select[A](opts), label)
+
+  def withPresenter[A : Mandatory](inputPresenter: (String, Rule[_, A], Option[String], Seq[Throwable]) => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
+    def render(name: String, rule: Rule[_, A], value: Option[String], errors: Seq[Throwable]) =
       FormUi(Seq(
-        tags.dl(attrs.id := s"${field.name}_field")((if (field.errors.nonEmpty) Seq(attrs.`class` := "error") else Nil): _*)(
-          tags.dt(tags.label(attrs.`for` := field.name)(field.label.map(label => label: Modifier))),
-          tags.dd(Input.inputUi(InputType[A].tpe, field.name, field.value, Map.empty)),
-          for (error <- field.errors) yield tags.dd(attrs.`class` := "error")(errorToMessage(error)),
-          for (info <- field.infos) yield tags.dd(attrs.`class` := "info")(info)
+        tags.dl((if (errors.nonEmpty) Seq(attrs.`class` := "error") else Nil): _*)(
+          tags.dt(tags.label(attrs.`for` := name)(label)),
+          tags.dd(inputPresenter(name, rule, value, errors).render(name, rule, value, errors).html),
+          for (error <- errors) yield tags.dd(attrs.`class` := "error")(errorToMessage(error)),
+          for (info <- infos(rule)) yield tags.dd(attrs.`class` := "info")(info)
         )
       ))
   }

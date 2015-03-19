@@ -8,8 +8,10 @@ This is a work in progress. Next steps are the following:
 - [x] different kinds of HTML controls (input, select, etc.)
 - [x] tie `Input.Field` and `Input` together
 - [x] form composition
-- [ ] richer UI controls (with validation error messages, labels, etc.)
+- [x] richer UI controls (with validation error messages, labels, etc.)
 - [ ] submission error should display the submitted data
+- [ ] use a Reader to ease `Presenter`s composition
+- [ ] `Rule[A, B] =:= A => Either[Seq[Throwable], B]`
 - [ ] field value should be `Option[String]` rather than `String`
 - [ ] JSON presenter for client-side rendering and error reporting
 - [ ] `A` => `Rule[(A, B), C]` => `Rule[B, C]`

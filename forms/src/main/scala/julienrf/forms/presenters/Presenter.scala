@@ -1,18 +1,11 @@
 package julienrf.forms.presenters
 
-import julienrf.forms.{FormData, FormUi}
+import julienrf.forms.FormUi
 import julienrf.forms.rules.Rule
 
+// TODO Use a Reader
 trait Presenter[A] {
 
-  type Field <: FieldLike
-
-  trait FieldLike {
-    def addingError(error: Throwable): Field
-    def withValue(value: String): Field
-  }
-
-  def field(name: String, rule: Rule[(FormData, String), A]): Field
-  def render(field: Field): FormUi // TODO Abstract over FormUi
+  def render(name: String, rule: Rule[_, A], value: Option[String], errors: Seq[Throwable]): FormUi  // TODO Abstract over FormUi
 
 }

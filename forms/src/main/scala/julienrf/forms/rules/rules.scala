@@ -5,13 +5,14 @@ import julienrf.forms.FormData
 import scala.util.{Failure, Success, Try}
 
 // FIXME Separate run and show and make B covariant and A contravariant?
+// TODO `run: A => Either[Seq[Throwable], B]`
 sealed abstract class Rule[A, B](val run: A => Try[B], val show: B => String) {
 
   final def >=> [C](that: Rule[B, C]): Rule[A, C] = AndThen(this, that)
 
   final def andThen[C](that: Rule[B, C]): Rule[A, C] = this >=> that
 
-//  def && [C](that: Rule[A, C]): Rule[A, (B, C)] = And(this, that)
+//  def && (that: Rule[A, A])(implicit ev: A <:< B): Rule[A, A] = And(this, that)
 
   final def || (that: Rule[A, B]): Rule[A, B] = Or(this, that)
 

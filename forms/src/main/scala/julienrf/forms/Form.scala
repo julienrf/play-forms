@@ -23,13 +23,13 @@ sealed trait Form[A] {
 
 final case class FieldForm[A](field: (String, Rule[(FormData, String), A]), presenter: Presenter[A]) extends Form[A] {
   val (name, rule) = field
-  val f = presenter.field(name, rule)
   def bind(data: FormData) = rule.run((data, name)) match {
     case Success(a) => Right(a)
-    case Failure(error) => Left(presenter render f.addingError(error))
+    // TODO Display the value entered by the client
+    case Failure(error) => Left(presenter.render(name, rule, None, Seq(error)))
   }
-  def unbind(a: A) = presenter render f.withValue(rule.show(a))
-  def empty = presenter render f
+  def unbind(a: A) = presenter.render(name, rule, Some(rule.show(a)), Nil)
+  def empty = presenter.render(name, rule, None, Nil)
   def keys = Seq(name)
 }
 
