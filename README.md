@@ -1,5 +1,7 @@
 # play-forms [![Build Status](https://travis-ci.org/julienrf/play-forms.svg)](https://travis-ci.org/julienrf/play-forms) [![Coverage Status](https://coveralls.io/repos/julienrf/play-forms/badge.svg)](https://coveralls.io/r/julienrf/play-forms) [![Stories in Ready](https://badge.waffle.io/julienrf/play-forms.png?label=ready&title=Ready)](https://waffle.io/julienrf/play-forms)
 
+[![Join the chat at https://gitter.im/julienrf/play-forms](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/julienrf/play-forms?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Another way to handle HTML forms in your Play application. See the [features](https://github.com/julienrf/play-forms/tree/master/forms/src/test/scala/julienrf/forms)
 for more details, or just dig in the code of the [example](https://github.com/julienrf/play-forms/tree/master/example).
 
