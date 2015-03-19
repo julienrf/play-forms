@@ -1,14 +1,13 @@
 val commonSettings = Seq(
   organization := "org.julienrf",
   version := "0.0.0-SNAPSHOT",
-  scalaVersion := "2.11.5"
+  scalaVersion := "2.11.6"
 )
 
 val `play-forms` = project.in(file("forms"))
   .settings(commonSettings: _*)
   .settings(
     name := "play-forms",
-    resolvers += "JTO snapshots" at "https://raw.github.com/jto/mvn-repo/master/snapshots",
     libraryDependencies ++= Seq(
       "com.scalatags" %% "scalatags" % "0.4.2",
       "com.typesafe.play" %% "play" % "2.3.7",
