@@ -3,18 +3,7 @@
 Another way to handle HTML forms in your Play application. See the [features](https://github.com/julienrf/play-forms/tree/master/forms/src/test/scala/julienrf/forms)
 for more details, or just dig in the code of the [example](https://github.com/julienrf/play-forms/tree/master/example).
 
-This is a work in progress. Next steps are the following:
-
-- [x] different kinds of HTML controls (input, select, etc.)
-- [x] tie `Input.Field` and `Input` together
-- [x] form composition
-- [x] richer UI controls (with validation error messages, labels, etc.)
-- [ ] submission error should display the submitted data
-- [ ] use a Reader to ease `Presenter`s composition
-- [ ] `Rule[A, B] =:= A => Either[Seq[Throwable], B]`
-- [ ] field value should be `Option[String]` rather than `String`
-- [ ] JSON presenter for client-side rendering and error reporting
-- [ ] `A` => `Rule[(A, B), C]` => `Rule[B, C]`
+This is a [work in progress](https://waffle.io/julienrf/play-forms).
 
 ## Motivation
 
