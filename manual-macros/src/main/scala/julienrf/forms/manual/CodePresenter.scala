@@ -6,7 +6,7 @@ import scala.reflect.macros.blackbox.Context
 object CodePresenter {
 
   // You should not create such a value by yourself. Let the macro do the work
-  case class ExprPresentation[A](value: A, presentation: String)
+  case class ExprPresentation[A](value: A, source: String)
 
   def apply[A](a: A): ExprPresentation[A] = macro codeMacro[A]
 

@@ -1,6 +1,6 @@
 package julienrf.forms.presenters
 
-import scalatags.Text.{Aggregate, Cap}
+import scalatags.Text.{TypedTag, Aggregate, Cap}
 import scalatags.generic.Attrs
 import scalatags.text.{Builder, Tags}
 
@@ -14,6 +14,8 @@ object ScalaTags {
   trait Tag {
     object tag extends Cap with Tags
     final val < = tag
+
+    type Tag = TypedTag[String]
   }
 
   trait Implicits extends Aggregate with Cap

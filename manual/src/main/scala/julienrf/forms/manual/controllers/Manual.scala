@@ -28,29 +28,33 @@ object Manual extends Controller {
       )
     }
 
-    def link(content: Modifier*)(url: String): Modifier = <.a(%.href := url)(content: _*)
-    def section(content: Modifier*): Modifier = <.h1(content: _*)
-    def subsection(content: Modifier*): Modifier = <.h2(content: _*)
-    def p(content: Modifier*): Modifier = <.p(content: _*)
-    def article(content: Modifier*): Modifier = <.div(content: _*)
-    def code(content: String): Modifier = <.code(content)
-    def codeBlock(content: String): Modifier = <.pre(<.code(content))
+    def title(content: Modifier*): Tag = <.h1(content: _*)
+    def link(content: Modifier*)(url: String): Tag = <.a(%.href := url)(content: _*)
+    def section(content: Modifier*): Tag = <.h2(content: _*)
+    def subsection(content: Modifier*): Tag = <.h3(content: _*)
+    def p(content: Modifier*): Tag = <.p(content: _*)
+    def article(content: Modifier*): Tag = <.div(content: _*)
+    def code(content: String): Tag = <.code(content)
+    def codeBlock(content: String): Tag = <.pre(<.code(content))
 
     val page = article(
+      p(
+        "The library is built arount three main concepts: ", code("Form"), "s, ", code("Rule"), "s and ", code("Presenter"), "s."
+      ),
       section("Forms"),
       subsection("Definition"),
       p(
         "The main abstraction is given by the ",
         link(code("Form[A]"))(s"http://julienrf.github.io/play-forms/$version/api/#julienrf.forms.Form"),
-        " type."
+        " type. A ", code("Form[A]"), " is both a way to process a form submission to yield "
       ),
-      codeBlock(nameFormCode.presentation),
+      codeBlock(nameFormCode.source),
       subsection("Display"),
       p("To display an empty form (that is, a form that is not filled), use the ", code("empty"), " method:"),
-      codeBlock(showNameFormCode.presentation),
+      codeBlock(showNameFormCode.source),
       showNameFormCode.value
     )
-    Ok(<.div(page).render).as(HTML)
+    Ok(page.render).as(HTML)
   }
 
 }
