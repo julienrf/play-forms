@@ -53,11 +53,21 @@ val example = project.in(file("example"))
   .settings(commonSettings: _*)
   .dependsOn(`play-forms`)
 
+val `manual-macros` = project.in(file("manual-macros"))
+  .settings(commonSettings: _*)
+  .settings(
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % scalaVersion.value,
+    scalacOptions ++= Seq(/*"-Ymacro-debug-lite"*/)
+  )
+
 val manual = project.in(file("manual"))
   .enablePlugins(PlayScala)
   .disablePlugins(PlayLayoutPlugin)
   .settings(commonSettings: _*)
-  .dependsOn(`play-forms`)
+  .settings(
+    scalacOptions ++= Seq("-Yrangepos"/*, "-Ymacro-debug-lite"*/)
+  )
+  .dependsOn(`play-forms`, `manual-macros`)
 
 val `play-forms-project` = project.in(file("."))
   .settings(commonSettings: _*)
