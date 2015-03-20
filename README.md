@@ -28,7 +28,7 @@ If you are using sbt add the following dependency:
 libraryDependencies += "org.julienrf" %% "play-forms" % "0.0.0-SNAPSHOT"
 ```
 
-The 0.0.0-SNAPSHOT version is compatible with Scala 2.11 and Play 2.3.x.
+The 0.0.0-SNAPSHOT version is compatible with Scala 2.11 and Play 2.4.x.
 
 ## Quick Start
 

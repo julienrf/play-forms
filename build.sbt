@@ -11,7 +11,7 @@ val `play-forms` = project.in(file("forms"))
     resolvers += "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases",
     libraryDependencies ++= Seq(
       "com.scalatags" %% "scalatags" % "0.4.2",
-      "com.typesafe.play" %% "play" % "2.3.7",
+      component("play"),
       "org.scalacheck" %% "scalacheck" % "1.12.1" % "test"
     ),
     publishMavenStyle := true,
@@ -49,6 +49,13 @@ val `play-forms` = project.in(file("forms"))
 
 val example = project.in(file("example"))
   .enablePlugins(PlayScala)
+  .disablePlugins(PlayLayoutPlugin)
+  .settings(commonSettings: _*)
+  .dependsOn(`play-forms`)
+
+val manual = project.in(file("manual"))
+  .enablePlugins(PlayScala)
+  .disablePlugins(PlayLayoutPlugin)
   .settings(commonSettings: _*)
   .dependsOn(`play-forms`)
 
