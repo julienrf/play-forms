@@ -98,12 +98,11 @@ object Item extends Controller {
    * @return A form tag containing the given fields and a submit button
    */
   def htmlForm(fields: FormUi): Tag = {
-    import scalatags.Text.{attrs, tags}
-    import scalatags.Text.all._
+    import julienrf.forms.presenters.ScalaTags.bundle._
     val call = routes.Item.submission()
-    tags.form(attrs.action := call.url, attrs.method := call.method)(
+    <.form(at.action := call.url, at.method := call.method)(
       fields.html,
-      tags.button("Submit")
+      <.button("Submit")
     )
   }
 

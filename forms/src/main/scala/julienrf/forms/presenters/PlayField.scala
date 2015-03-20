@@ -6,12 +6,11 @@ import julienrf.forms.rules._
 /**
  * Produces HTML similar to what form helpers built-in with Play produce, but with the following changes:
  *  - Fixes the problem with `optional(nonEmptyText)`
- *  - Adds HTML validation attributes to input tags
+ *  - Adds HTML validation attributes to input <
  */
 object PlayField {
 
-  import scalatags.Text.all._
-  import scalatags.Text.{attrs, tags}
+  import ScalaTags.bundle._
 
   /**
    * Similar to Play’s `inputText` or `inputDate`. It automatically sets the input type according
@@ -27,11 +26,11 @@ object PlayField {
   def withPresenter[A : Mandatory](inputPresenter: (String, Rule[_, A], Option[String], Seq[Throwable]) => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
     def render(name: String, rule: Rule[_, A], value: Option[String], errors: Seq[Throwable]) =
       FormUi(Seq(
-        tags.dl((if (errors.nonEmpty) Seq(attrs.`class` := "error") else Nil): _*)(
-          tags.dt(tags.label(attrs.`for` := name)(label)),
-          tags.dd(inputPresenter(name, rule, value, errors).render(name, rule, value, errors).html),
-          for (error <- errors) yield tags.dd(attrs.`class` := "error")(errorToMessage(error)),
-          for (info <- infos(rule)) yield tags.dd(attrs.`class` := "info")(info)
+        <.dl((if (errors.nonEmpty) Seq(at.`class` := "error") else Nil): _*)(
+          <.dt(<.label(at.`for` := name)(label)),
+          <.dd(inputPresenter(name, rule, value, errors).render(name, rule, value, errors).html),
+          for (error <- errors) yield <.dd(at.`class` := "error")(errorToMessage(error)),
+          for (info <- infos(rule)) yield <.dd(at.`class` := "info")(info)
         )
       ))
   }
