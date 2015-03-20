@@ -100,7 +100,7 @@ object Item extends Controller {
   def htmlForm(fields: FormUi): Tag = {
     import julienrf.forms.presenters.ScalaTags.bundle._
     val call = routes.Item.submission()
-    <.form(at.action := call.url, at.method := call.method)(
+    <.form(%.action := call.url, %.method := call.method)(
       fields.html,
       <.button("Submit")
     )

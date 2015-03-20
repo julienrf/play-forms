@@ -12,9 +12,9 @@ object Input {
     def render(name: String, rule: Rule[_, A], value: Option[String], errors: Seq[Throwable]) =
       FormUi(Seq(
         <.input(
-          at.`type` := InputType[A].tpe,
-          at.name := name,
-          at.value := value.getOrElse(""),
+          %.`type` := InputType[A].tpe,
+          %.name := name,
+          %.value := value.getOrElse(""),
           (Input.validationAttrs(rule) ++ additionalAttrs).map { case (n, v) => n.attr := v}.to[Seq]
         )
       ))
@@ -36,13 +36,13 @@ object Input {
 
   def options(data: Seq[(String, String)])(fieldValue: Option[String]): Seq[scalatags.Text.Tag] =
     for ((value, label) <- data) yield {
-      <.option(at.value := value, if (fieldValue contains value) Seq("selected".attr := "selected") else Seq.empty[Modifier])(label)
+      <.option(%.value := value, if (fieldValue contains value) Seq("selected".attr := "selected") else Seq.empty[Modifier])(label)
     }
 
   def select[A : Mandatory](opts: Option[String] => Seq[scalatags.Text.Tag]): Presenter[A] = new Presenter[A] {
     def render(name: String, rule: Rule[_, A], value: Option[String], errors: Seq[Throwable]) =
       FormUi(Seq(
-        <.select(at.name := name, if (Mandatory[A].value) Seq(at.required := "required") else Seq.empty[Modifier])(
+        <.select(%.name := name, if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier])(
           opts(value)
         )
       ))

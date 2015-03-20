@@ -26,11 +26,11 @@ object PlayField {
   def withPresenter[A : Mandatory](inputPresenter: (String, Rule[_, A], Option[String], Seq[Throwable]) => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
     def render(name: String, rule: Rule[_, A], value: Option[String], errors: Seq[Throwable]) =
       FormUi(Seq(
-        <.dl((if (errors.nonEmpty) Seq(at.`class` := "error") else Nil): _*)(
-          <.dt(<.label(at.`for` := name)(label)),
+        <.dl((if (errors.nonEmpty) Seq(%.`class` := "error") else Nil): _*)(
+          <.dt(<.label(%.`for` := name)(label)),
           <.dd(inputPresenter(name, rule, value, errors).render(name, rule, value, errors).html),
-          for (error <- errors) yield <.dd(at.`class` := "error")(errorToMessage(error)),
-          for (info <- infos(rule)) yield <.dd(at.`class` := "info")(info)
+          for (error <- errors) yield <.dd(%.`class` := "error")(errorToMessage(error)),
+          for (info <- infos(rule)) yield <.dd(%.`class` := "info")(info)
         )
       ))
   }

@@ -7,11 +7,13 @@ import scalatags.text.{Builder, Tags}
 object ScalaTags {
 
   trait Attr {
-    object at extends Cap with Attrs[Builder, String, String]
+    object attr extends Cap with Attrs[Builder, String, String]
+    final val % = attr
   }
 
   trait Tag {
-    object < extends Cap with Tags
+    object tag extends Cap with Tags
+    final val < = tag
   }
 
   trait Implicits extends Aggregate with Cap
