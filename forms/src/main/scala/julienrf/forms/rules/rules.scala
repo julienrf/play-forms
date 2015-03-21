@@ -8,17 +8,17 @@ import scala.util.{Failure, Success, Try}
 // TODO `run: A => Either[Seq[Throwable], B]`
 sealed abstract class Rule[A, B](val run: A => Try[B], val show: B => FieldData) {
 
-  final def >=> [C](that: Rule[B, C]): Rule[A, C] = AndThen(this, that)
+  final def >=> [C](that: Rule[B, C]): Rule[A, C] = this andThen that
 
-  final def andThen[C](that: Rule[B, C]): Rule[A, C] = this >=> that
+  final def andThen[C](that: Rule[B, C]): Rule[A, C] = AndThen(this, that)
 
 //  def && (that: Rule[A, A])(implicit ev: A <:< B): Rule[A, A] = And(this, that)
 
   final def || (that: Rule[A, B]): Rule[A, B] = Or(this, that)
 
-  final def ? : Rule[A, Option[B]] = Opt(this)
+  final def ? : Rule[A, Option[B]] = opt
 
-  final def opt: Rule[A, Option[B]] = ?
+  final def opt: Rule[A, Option[B]] = Opt(this)
 
 }
 
