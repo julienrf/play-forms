@@ -21,21 +21,23 @@ sealed trait Form[A] {
   })
 }
 
-final case class FieldForm[A](field: (String, Rule[(FormData, String), A]), presenter: Presenter[A]) extends Form[A] {
+final case class FieldForm[A](field: (String, Rule[FieldData, A]), presenter: Presenter[A]) extends Form[A] {
   val (name, rule) = field
-  def bind(data: FormData) = rule.run((data, name)) match {
-    case Success(a) => Right(a)
-    // TODO Display the value entered by the client
-    case Failure(error) => Left(presenter.render(Field(name, rule, None, Seq(error))))
+  def bind(data: FormData) = {
+    val value = data.getOrElse(name, Nil)
+    rule.run(value) match {
+      case Success(a) => Right(a)
+      case Failure(error) => Left(presenter.render(Field(name, rule, value, Seq(error))))
+    }
   }
-  def unbind(a: A) = presenter.render(Field(name, rule, Some(rule.show(a)), Nil))
-  def empty = presenter.render(Field(name, rule, None, Nil))
+  def unbind(a: A) = presenter.render(Field(name, rule, rule.show(a), Nil))
+  def empty = presenter.render(Field(name, rule, Nil, Nil))
   def keys = Seq(name)
 }
 
 object Form {
 
-  def field[A](name: String, rule: Rule[(FormData, String), A])(presenter: Presenter[A]): Form[A] =
+  def field[A](name: String, rule: Rule[FieldData, A])(presenter: Presenter[A]): Form[A] =
     FieldForm((name, rule), presenter)
 
   def form[A](key: String, fa: Form[A]): Form[A] =
@@ -78,6 +80,6 @@ object Form {
   }
 }
 
-case class FormUi(html: Seq[scalatags.Text.Modifier]) { lhs =>
+case class FormUi(html: Seq[_root_.scalatags.Text.Modifier]) { lhs =>
   def ++ (rhs: FormUi): FormUi = FormUi(lhs.html ++ rhs.html)
 }

@@ -1,6 +1,6 @@
 package julienrf.forms.rules
 
-import julienrf.forms.FormData
+import julienrf.forms.{FieldData, FormData}
 import org.scalacheck.{Prop, Properties}
 import org.scalacheck.Prop._
 
@@ -11,16 +11,16 @@ object RuleTest extends Properties("Rule") {
   val text = forAll { (s: String, k: String) =>
     (k.nonEmpty && s.nonEmpty) ==> {
       val rule = Rule.text
-      succeeds(s, rule.run(data(k, s))) &&
-      rule.run(noData(k)).isFailure &&
-      rule.run(emptyData(k)).isFailure
+      succeeds(s, rule.run(Seq(s))) &&
+      rule.run(Nil).isFailure &&
+      rule.run(Seq("")).isFailure
     }
   }
   val int = forAll { (n: Int, k: String) =>
     k.nonEmpty ==> {
       val rule = Rule.int
-      succeeds(n, rule.run(data(k, rule.show(n)))) &&
-      rule.run(noData(k)).isFailure
+      succeeds(n, rule.run(rule.show(n))) &&
+      rule.run(Nil).isFailure
     }
   }
   val min = forAll { (n: Int, m: Int, k: String) =>
@@ -44,9 +44,6 @@ object RuleTest extends Properties("Rule") {
 
   property("composition") = kleisli && or && opt
 
-  def data(k: String, v: String): (FormData, String) = (Map(k -> Seq(v)), k)
-  def noData(k: String): (FormData, String) = (Map.empty[String, Seq[String]], k)
-  def emptyData(k: String): (FormData, String) = (Map(k -> Seq("")), k)
   def succeeds[A](a: A, result: Try[A]): Prop = result match {
     case Success(ra) => a == ra
     case Failure(_) => falsified

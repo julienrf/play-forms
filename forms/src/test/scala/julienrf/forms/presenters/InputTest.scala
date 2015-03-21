@@ -1,13 +1,13 @@
 package julienrf.forms.presenters
 
-import julienrf.forms.{Form, FormData}
 import julienrf.forms.rules.Rule
-import julienrf.forms.rules.Rule.{text, int, min}
-import org.apache.commons.lang3.StringEscapeUtils
-import org.scalacheck.Properties
+import julienrf.forms.rules.Rule.{int, min, text}
+import julienrf.forms.{FieldData, Form}
+import julienrf.forms.scalatags.ScalaTags.hasAttr
 import org.scalacheck.Prop._
+import org.scalacheck.Properties
 
-object FieldTest extends Properties("Field") {
+object InputTest extends Properties("Input") {
 
   property("derive HTML validation attributes from Rule constraints") = {
 
@@ -24,7 +24,7 @@ object FieldTest extends Properties("Field") {
       hasAllSuppliedValidationAttrs && hasNoOtherValidationAttr
     }
 
-    def p[A : Mandatory : InputType](nameAndMaybeValues: (String, Option[String])*)(rule: Rule[(FormData, String), A]): Boolean = {
+    def p[A : Mandatory : InputType](nameAndMaybeValues: (String, Option[String])*)(rule: Rule[FieldData, A]): Boolean = {
       val path = "foo"
       val attrsWithoutRequired = nameAndMaybeValues.filter { case (n, _) => n != "required" }
       val optRemovesRequired = hasOnlyValidationAttrs(attrsWithoutRequired: _*)(Form.field(path, rule.?)(Input.input))
@@ -39,7 +39,7 @@ object FieldTest extends Properties("Field") {
   property("the validation attributes derivation logic is extensible") = undecided
 
   property("derive the input type according to the Reads type") = {
-    def p[A : Mandatory : InputType](tpe: String)(rule: Rule[(FormData, String), A]): Boolean =
+    def p[A : Mandatory : InputType](tpe: String)(rule: Rule[FieldData, A]): Boolean =
       hasAttr("type", Some(tpe))(Form.field("foo", rule)(Input.input).empty.html)
 
     p("text")(text) &&
@@ -47,15 +47,5 @@ object FieldTest extends Properties("Field") {
   }
 
   property("the input type derivation logic is extensible") = undecided
-
-  def hasAttr(name: String, maybeValue: Option[String])(html: Seq[scalatags.Text.Modifier]): Boolean = {
-    val elem = scalatags.Text.tags.div(html: _*)
-    maybeValue match {
-      case Some(value) =>
-        elem.toString().containsSlice(s"""$name="${StringEscapeUtils.escapeXml(value)}"""")
-      case None =>
-        elem.toString().containsSlice(name)
-    }
-  }
 
 }

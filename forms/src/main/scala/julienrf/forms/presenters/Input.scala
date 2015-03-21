@@ -14,7 +14,7 @@ object Input {
         <.input(
           %.`type` := InputType[A].tpe,
           %.name := field.name,
-          %.value := field.value.getOrElse(""),
+          %.value := field.value.headOption.getOrElse(""),
           (Input.validationAttrs(field.rule) ++ additionalAttrs).map { case (n, v) => n.attr := v}.to[Seq]
         )
       ))
@@ -43,7 +43,7 @@ object Input {
     def render(field: Field[A]) =
       FormUi(Seq(
         <.select(%.name := field.name, if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier])(
-          opts(field.value)
+          opts(field.value.headOption)
         )
       ))
   }
