@@ -1,7 +1,7 @@
 package julienrf.forms
 
 import julienrf.forms.rules.Rule
-import julienrf.forms.presenters.Presenter
+import julienrf.forms.presenters.{Field, Presenter}
 import play.api.libs.functional.{FunctionalCanBuild, InvariantFunctor, ~}
 import play.api.mvc.{BodyParsers, BodyParser, Result}
 
@@ -26,10 +26,10 @@ final case class FieldForm[A](field: (String, Rule[(FormData, String), A]), pres
   def bind(data: FormData) = rule.run((data, name)) match {
     case Success(a) => Right(a)
     // TODO Display the value entered by the client
-    case Failure(error) => Left(presenter.render(name, rule, None, Seq(error)))
+    case Failure(error) => Left(presenter.render(Field(name, rule, None, Seq(error))))
   }
-  def unbind(a: A) = presenter.render(name, rule, Some(rule.show(a)), Nil)
-  def empty = presenter.render(name, rule, None, Nil)
+  def unbind(a: A) = presenter.render(Field(name, rule, Some(rule.show(a)), Nil))
+  def empty = presenter.render(Field(name, rule, None, Nil))
   def keys = Seq(name)
 }
 

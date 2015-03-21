@@ -6,7 +6,7 @@ import julienrf.forms.rules._
 /**
  * Produces HTML similar to what form helpers built-in with Play produce, but with the following changes:
  *  - Fixes the problem with `optional(nonEmptyText)`
- *  - Adds HTML validation attributes to input <
+ *  - Adds HTML validation attributes to input tag
  */
 object PlayField {
 
@@ -18,19 +18,19 @@ object PlayField {
    */
   // TODO Handle id, help, showConstraints, error, showErrors and additionalInputAttrs
   def input[A : Mandatory : InputType](label: String): Presenter[A] =
-    withPresenter((name, rule, value, errors) => Input.input[A]("id" -> name), label)
+    withPresenter(field => Input.input[A]("id" -> field.name), label)
 
   def select[A : Mandatory](label: String, opts: Option[String] => Seq[scalatags.Text.Tag]): Presenter[A] =
-    withPresenter((name, rule, value, errors) => Input.select[A](opts), label)
+    withPresenter(field => Input.select[A](opts), label)
 
-  def withPresenter[A : Mandatory](inputPresenter: (String, Rule[_, A], Option[String], Seq[Throwable]) => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
-    def render(name: String, rule: Rule[_, A], value: Option[String], errors: Seq[Throwable]) =
+  def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
+    def render(field: Field[A]) =
       FormUi(Seq(
-        <.dl((if (errors.nonEmpty) Seq(%.`class` := "error") else Nil): _*)(
-          <.dt(<.label(%.`for` := name)(label)),
-          <.dd(inputPresenter(name, rule, value, errors).render(name, rule, value, errors).html),
-          for (error <- errors) yield <.dd(%.`class` := "error")(errorToMessage(error)),
-          for (info <- infos(rule)) yield <.dd(%.`class` := "info")(info)
+        <.dl((if (field.errors.nonEmpty) Seq(%.`class` := "error") else Nil): _*)(
+          <.dt(<.label(%.`for` := field.name)(label)), // TODO Generate a random id
+          <.dd(inputPresenter(field).render(field).html),
+          for (error <- field.errors) yield <.dd(%.`class` := "error")(errorToMessage(error)),
+          for (info <- infos(field.rule)) yield <.dd(%.`class` := "info")(info)
         )
       ))
   }
