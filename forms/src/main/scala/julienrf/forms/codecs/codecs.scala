@@ -4,30 +4,112 @@ import julienrf.forms.FieldData
 import scala.util.control.NonFatal
 
 
+/**
+ * As its name suggests, a `Codec[A, B]`, defines how to '''decode''' an `A` value to a `B` value, and, conversely,
+ * how to '''encode''' a `B` value to an `A` value.
+ *
+ * The decoding and encoding processes are defined by the [[decode]] and [[encode]] methods.
+ *
+ * To get an instance of `Codec`, start with the provided '''concrete subclasses''' (see the [[Codec$ companion object]]) and '''combine''' them with the
+ * [[andThen]], [[orElse]] and [[opt]] methods.
+ *
+ * @see [[Constraint]]: a specialization of `Codec` that can be seen as a validator of `A` values.
+ *
+ * @groupname combinators Combinators
+ * @groupprio combinators 20
+ *
+ * @groupname primary Primary Members
+ * @groupprio primary 10
+ */
 // FIXME Separate decode and encode and make B covariant and A contravariant?
 sealed abstract class Codec[A, B] {
 
+  /**
+   * Attempts to decode a value of type `B` from the specified `A` value.
+   *
+   * @param a value to decode
+   * @return a `Left` value containing the errors if the decoding process failed, otherwise a `Right` value containing the `B`
+   * @note in case of failure, the sequence of errors is not empty
+   * @group primary
+   */
   def decode(a: A): Either[Seq[Throwable], B]
 
+  /**
+   * Encodes a value of type `B` to an `A` value.
+   *
+   * The return type is `Option[A]` rather than `A` because the absence of an `A` value is sometimes the way you want
+   * to encode some `B` value.
+   *
+   * @param b value to encode
+   * @return the encoded value
+   * @group primary
+   */
   def encode(b: B): Option[A]
 
+  /**
+   * Alias for [[andThen]]
+   *
+   * @group combinators
+   */
   final def >=> [C](that: Codec[B, C]): Codec[A, C] = this andThen that
 
+  /**
+   * Chaining combinator.
+   *
+   * @param that `Codec` to run after `this` `Codec` has run
+   * @return a `Codec` that decodes values by first running `this` `Codec` and then the specified `Codec`
+   * @group combinators
+   */
   final def andThen[C](that: Codec[B, C]): Codec[A, C] = AndThen(this, that)
 
+  /**
+   * Alternative combinator.
+   *
+   * @param that `Codec` to run if `this` `Codec` fails
+   * @return a `Codec` that runs the specified `Codec` if `this` `Codec` failed
+   * @group combinators
+   */
   final def orElse[C](that: Codec[A, C]): Codec[A, Either[B, C]] = OrElse(this, that)
 
+  /**
+   * Alias for [[orElse]]
+   *
+   * @group combinators
+   */
   final def || [C](that: Codec[A, C]): Codec[A, Either[B, C]] = this orElse that
 
+  /**
+   * Alias for [[opt]]
+   *
+   * @group combinators
+   */
   final def ? : Codec[A, Option[B]] = opt
 
+  /**
+   * Optional combinator.
+   *
+   * @return a `Codec` that turns a failure into a successful `None` value
+   * @group combinators
+   */
   final def opt: Codec[A, Option[B]] = Opt(this)
 
 }
 
-
+/**
+ * Specialisation of `Codec[A, A]` that can be seen as a validator of `A` values.
+ *
+ * This class inherits all the combinators of [[Codec]] and defines an additional combinator, [[and]].
+ *
+ * @note a `Constraint` can '''not''' modify the validated value
+ */
 sealed abstract class Constraint[A] extends Codec[A, A] {
 
+  /**
+   * Apply some validation logic to the specified value
+   * @param a value to validate
+   * @return `None` if the value is valid, otherwise `Some` sequence of validation errors
+   * @group primary
+   */
   def validate(a: A): Option[Seq[Throwable]]
 
   final def decode(a: A) = validate(a) match {
@@ -37,7 +119,21 @@ sealed abstract class Constraint[A] extends Codec[A, A] {
 
   final def encode(a: A) = Some(a)
 
-  final def &&(that: Constraint[A]): Constraint[A] = And(this, that)
+  /**
+   * Alias for [[and]]
+   *
+   * @group combinators
+   */
+  final def && (that: Constraint[A]): Constraint[A] = this and that
+
+  /**
+   * Conjunction combinator.
+   *
+   * @param that a `Constraint` to apply in addition to `this` `Constraint`
+   * @return a `Constraint` that applies `this` and `that` validation rules
+   * @group combinators
+   */
+  final def and(that: Constraint[A]): Constraint[A] = And(this, that)
 
 }
 
@@ -178,19 +274,67 @@ final case class SeveralOf[A](valuesToKey: Map[A, String]) extends Codec[FieldDa
 }
 
 
+/**
+ * Lists all the built-in `Codec`s.
+ *
+ * @groupname field Field Codecs
+ * @groupprio field 10
+ *
+ * @groupname constraint Constraints
+ * @groupprio constraint 20
+ */
 object Codec {
 
+  /**
+   * Attempts to get a `String` value from a form field data.
+   *
+   * @note Empty `String` values are not considered to be valid. Use the [[Codec#opt opt]] combinator to optionally decode a `String`.
+   * @group field
+   */
   val text: Codec[FieldData, String] = Head
 
+  /**
+   * Attempts to get an `Int` from the form field data.
+   *
+   * @group field
+   */
   val int: Codec[FieldData, Int] = Head >=> ToInt
 
+  /**
+   * Attempts to get a `Boolean` value form the form field data.
+   *
+   * Decodes `true` if the field data is not empty, `false` otherwise.
+   *
+   * @group field
+   */
   val boolean: Codec[FieldData, Boolean] = ToBoolean
 
+  /**
+   * Attempts to map the form field data to an `A` value using the specified `Map`.
+   *
+   * @note the values of the `Map` must be unique
+   *
+   * @group field
+   */
   def oneOf[A](valuesToKey: Map[A, String]): Codec[FieldData, A] = Head >=> OneOf(valuesToKey)
 
+  /**
+   * Attempts to map tfe form field data to several `A` values using the specified `Map`.
+   *
+   * @note if one of the values of the form field data is not a valid index in the `Map`, the `Codec` fails
+   *
+   * @note the values of the `Map` must be unique
+   *
+   * @group field
+   */
   def severalOf[A](valuesToKey: Map[A, String]): Codec[FieldData, Seq[A]] = SeveralOf(valuesToKey)
 
-  def min(n: Int): Codec[Int, Int] = Min(n)
+  /**
+   * Checks that the decoded value is greater or equal to `n`
+   *
+   * @group constraint
+   */
+  def min(n: Int): Constraint[Int] = Min(n)
 
   //  def partialFunction[A, B](f: PartialFunction[A, B]): A => Result[B] = a => {
 //    if (f.isDefinedAt(a)) Success(f(a))

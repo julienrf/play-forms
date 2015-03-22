@@ -44,7 +44,8 @@ val `play-forms` = project.in(file("forms"))
     homePage := Path.userHome / "sites" / "julienrf.github.com",
     publishDoc := {
       IO.copyDirectory((doc in Compile).value, homePage.value / "play-forms" / version.value / "api")
-    }
+    },
+    scalacOptions in (Compile, doc) += "-groups"
   )
 
 val example = project.in(file("example"))

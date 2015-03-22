@@ -15,7 +15,7 @@ object Input {
           %.`type` := InputType[A].tpe,
           %.name := field.name,
           %.value := field.value.headOption.getOrElse(""),
-          (Input.validationAttrs(field.codec) ++ additionalAttrs).map { case (n, v) => n.attr := v}.to[Seq]
+          (Input.validationAttrs(field.codec) ++ additionalAttrs).map { case (n, v) => n.attr := v }.to[Seq]
         )
       ))
   }
@@ -28,7 +28,7 @@ object Input {
   def validationAttrsFromCodecs(codec: Codec[_, _]): Map[String, String] =
     codec match {
       case AndThen(lhs, rhs) => validationAttrsFromCodecs(lhs) ++ validationAttrsFromCodecs(rhs)
-      //      case And(lhs, rhs) => validationAttrsFromRules(lhs) ++ validationAttrsFromRules(rhs)
+      case And(lhs, rhs) => validationAttrsFromCodecs(lhs) ++ validationAttrsFromCodecs(rhs)
       case Min(num) => Map("min" -> num.toString)
       case Opt(codec) => validationAttrsFromCodecs(codec)
       case Head | ToInt | ToBoolean | OrElse(_, _) | OneOf(_) | SeveralOf(_) => Map.empty
