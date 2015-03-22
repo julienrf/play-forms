@@ -23,17 +23,34 @@ object PlayField {
   def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Seq[scalatags.Text.Tag]): Presenter[A] =
     withPresenter(field => Input.select[A](opts), label)
 
+  def checkbox(label: String): Presenter[Boolean] = new Presenter[Boolean] {
+    def render(field: Field[Boolean]) =
+      layout(field)()(
+        <.dd(
+          Input.checkbox("id" -> field.name).render(field).html, // TODO Generate a random id
+          <.label(%.`for` := field.name)(label)
+        )
+      )
+  }
+
   def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
     def render(field: Field[A]) =
-      FormUi(Seq(
-        <.dl((if (field.errors.nonEmpty) Seq(%.`class` := "error") else Nil): _*)(
-          <.dt(<.label(%.`for` := field.name)(label)), // TODO Generate a random id
+      layout(field)(
+          <.label(%.`for` := field.name)(label) // TODO Generate a random id
+      )(
           <.dd(inputPresenter(field).render(field).html),
           for (error <- field.errors) yield <.dd(%.`class` := "error")(errorToMessage(error)),
           for (info <- infos(field.codec)) yield <.dd(%.`class` := "info")(info)
-        )
-      ))
+      )
   }
+
+  def layout(field: Field[_])(dtContent: Modifier*)(dds: Modifier*) =
+    FormUi(Seq(
+      <.dl((if (field.errors.nonEmpty) Seq(%.`class` := "error") else Nil): _*)(
+        <.dt(dtContent),
+        dds
+      )
+    ))
 
   // TODO Use i18n
   def errorToMessage(error: Throwable): String = error match {

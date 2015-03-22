@@ -104,6 +104,15 @@ case object ToInt extends Codec[String, Int] {
 }
 
 
+case object ToBoolean extends Codec[FieldData, Boolean] {
+
+  def decode(data: FieldData) = Right(data.nonEmpty)
+
+  def encode(b: Boolean) = Some(if (b) Seq("true") else Seq.empty)
+
+}
+
+
 final case class Min(n: Int) extends Constraint[Int] {
 
   def validate(m: Int) = if (m >= n) None else Some(Seq(Error.MustBeAtLeast(n)))
@@ -175,13 +184,15 @@ object Codec {
 
   val int: Codec[FieldData, Int] = Head >=> ToInt
 
-  def min(n: Int): Codec[Int, Int] = Min(n)
+  val boolean: Codec[FieldData, Boolean] = ToBoolean
 
   def oneOf[A](valuesToKey: Map[A, String]): Codec[FieldData, A] = Head >=> OneOf(valuesToKey)
 
   def severalOf[A](valuesToKey: Map[A, String]): Codec[FieldData, Seq[A]] = SeveralOf(valuesToKey)
 
-//  def partialFunction[A, B](f: PartialFunction[A, B]): A => Result[B] = a => {
+  def min(n: Int): Codec[Int, Int] = Min(n)
+
+  //  def partialFunction[A, B](f: PartialFunction[A, B]): A => Result[B] = a => {
 //    if (f.isDefinedAt(a)) Success(f(a))
 //    else Failure(Seq(Error.Undefined))
 //  }

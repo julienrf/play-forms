@@ -31,7 +31,7 @@ object Input {
       //      case And(lhs, rhs) => validationAttrsFromRules(lhs) ++ validationAttrsFromRules(rhs)
       case Min(num) => Map("min" -> num.toString)
       case Opt(codec) => validationAttrsFromCodecs(codec)
-      case Head | ToInt | OrElse(_, _) | OneOf(_) | SeveralOf(_) => Map.empty
+      case Head | ToInt | ToBoolean | OrElse(_, _) | OneOf(_) | SeveralOf(_) => Map.empty
     }
 
   def options(data: Seq[(String, String)])(fieldValue: Seq[String]): Seq[scalatags.Text.Tag] =
@@ -42,13 +42,34 @@ object Input {
   def select[A : Mandatory : Multiple](opts: Seq[String] => Seq[scalatags.Text.Tag]): Presenter[A] = new Presenter[A] {
     def render(field: Field[A]) =
       FormUi(Seq(
-        <.select(%.name := field.name, if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier], if (Multiple[A].value) Seq("multiple".attr := "multiple") else Seq.empty[Modifier])(
+        <.select(
+          %.name := field.name,
+          if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier],
+          if (Multiple[A].value) Seq("multiple".attr := "multiple") else Seq.empty[Modifier]
+        )(
           opts(field.value)
         )
       ))
   }
 
+  // TODO Do not add the empty first choice in the case of a multiple select
   def enumOptions[A](values: Set[A], keys: A => String, labels: A => String): Seq[(String, String)] =
     ("" -> "") +: (values.to[Seq] map (a => keys(a) -> labels(a)))
+
+
+  val checkbox: Presenter[Boolean] = checkbox()
+
+  def checkbox(additionalAttrs: (String, String)*): Presenter[Boolean] = new Presenter[Boolean] {
+    def render(field: Field[Boolean]) =
+      FormUi(Seq(
+        <.input(
+          %.`type` := "checkbox",
+          %.name := field.name,
+          %.value := "true",
+          additionalAttrs.map { case (n, v) => n.attr := v}.to[Seq],
+          if (field.value.nonEmpty) Seq("checked".attr := "checked") else Seq.empty[Modifier]
+        )
+      ))
+  }
 
 }
