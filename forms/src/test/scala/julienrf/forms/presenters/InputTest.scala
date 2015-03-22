@@ -3,7 +3,7 @@ package julienrf.forms.presenters
 import julienrf.forms.rules.Rule
 import julienrf.forms.rules.Rule.{int, min, text}
 import julienrf.forms.{FieldData, Form}
-import julienrf.forms.scalatags.ScalaTags.hasAttr
+import julienrf.forms.st.ScalaTags.hasAttr
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 

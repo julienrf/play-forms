@@ -31,7 +31,7 @@ object Input {
       //      case And(lhs, rhs) => validationAttrsFromRules(lhs) ++ validationAttrsFromRules(rhs)
       case Min(num) => Map("min" -> num.toString)
       case Opt(rule) => validationAttrsFromRules(rule)
-      case Head | /*Id() |*/ ToInt | Or(_, _) | OneOf(_) => Map.empty
+      case Head | /*Id() |*/ ToInt | /*Or(_, _) |*/ OneOf(_) => Map.empty
     }
 
   def options(data: Seq[(String, String)])(fieldValue: Option[String]): Seq[scalatags.Text.Tag] =

@@ -1,4 +1,4 @@
-package julienrf.forms.scalatags
+package julienrf.forms.st
 
 import org.apache.commons.lang3.StringEscapeUtils
 

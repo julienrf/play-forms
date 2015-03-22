@@ -12,19 +12,19 @@ object RuleTest extends Properties("Rule") {
     s.nonEmpty ==> {
       val rule = Rule.text
       succeeds(s, rule.decode(Seq(s))) &&
-      rule.decode(Nil).isFailure &&
-      rule.decode(Seq("")).isFailure
+      rule.decode(Nil) == Left(Seq(Error.Required)) &&
+      rule.decode(Seq("")) == Left(Seq(Error.Required))
     }
   }
   val int = forAll { (n: Int) =>
     val rule = Rule.int
-    succeeds(n, rule.decode(rule.encode(n).get)) && // TODO Remove `.get`
-    rule.decode(Nil).isFailure
+    rule.encode(n).exists(data => rule.decode(data) == Right(n)) &&
+    rule.decode(Nil) == Left(Seq(Error.Required))
   }
   val min = forAll { (n: Int, m: Int) =>
     val rule = Rule.min(m)
     val result = rule.decode(n)
-    if (n >= m) succeeds(n, result) else result.isFailure: Prop
+    if (n >= m) succeeds(n, result) else result == Left(Seq(Error.MustBeAtLeast(m))): Prop
   }
 
   property("usual rules") = text && int && min
@@ -34,16 +34,15 @@ object RuleTest extends Properties("Rule") {
   val opt = {
     // FIXME I’d like to write forAll { (rule: Rule[A, B], a: A, b: B) => ... }
     val rule = Rule.min(42)
-    rule.decode(0).isFailure && succeeds(None, rule.?.decode(0)) &&
+    rule.decode(0).isLeft && succeeds(None, rule.?.decode(0)) &&
     succeeds(42, rule.decode(42)) && succeeds(Some(42), rule.?.decode(42))
   }
 
   property("composition") = kleisli && or && opt
 
-  def succeeds[A](a: A, result: Try[A]): Prop = result match {
-    case Success(ra) => a == ra
-    case Failure(_) => falsified
+  def succeeds[A](a: A, result: Either[Seq[Throwable], A]): Prop = result match {
+    case Right(ra) => a == ra
+    case Left(_) => falsified
   }
-  def failed[A](result: Try[A]): Prop = result.isFailure
 
 }

@@ -2,6 +2,7 @@ package julienrf.forms
 
 import julienrf.forms.presenters.Input
 import julienrf.forms.rules.Rule
+import julienrf.forms.st.ScalaTags.hasAttr
 import org.scalacheck.{Prop, Properties}
 import org.scalacheck.Prop._
 
@@ -20,8 +21,7 @@ object FormTest extends Properties("Form") {
   property("bind") = {
     def erroneousSubmissionPrefillsFormWithInputValue[A](form: Form[A], data: FormData): Prop = form.bind(data) match {
       case Left(errors) =>
-        import julienrf.forms.scalatags.ScalaTags
-        data.values.flatten.forall(value => ScalaTags.hasAttr("value", Some(value))(errors.html))
+        data.values.flatten.forall(value => hasAttr("value", Some(value))(errors.html))
       case Right(a) => proved
     }
 
