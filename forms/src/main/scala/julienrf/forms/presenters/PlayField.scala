@@ -20,7 +20,7 @@ object PlayField {
   def input[A : Mandatory : InputType](label: String): Presenter[A] =
     withPresenter(field => Input.input[A]("id" -> field.name), label)
 
-  def select[A : Mandatory](label: String, opts: Option[String] => Seq[scalatags.Text.Tag]): Presenter[A] =
+  def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Seq[scalatags.Text.Tag]): Presenter[A] =
     withPresenter(field => Input.select[A](opts), label)
 
   def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A], label: String): Presenter[A] = new Presenter[A] {

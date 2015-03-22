@@ -13,7 +13,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import scalatags.Text.Tag
 
-case class Item(detail: ItemDetail, category: Category)
+case class Item(detail: ItemDetail, categories: Seq[Category])
 
 case class ItemDetail(name: String, price: Int, description: Option[String])
 
@@ -55,7 +55,7 @@ object Item extends Controller {
    */
   val itemForm = (
     form("detail", itemDetailForm) ~
-    field("category", oneOf(Category.valuesToKey))(select("Category", options(enumOptions(Category.values, Category.keys, Category.labels))))
+    field("category", severalOf(Category.valuesToKey))(select("Category", options(enumOptions(Category.values, Category.keys, Category.labels))))
   )(Item.apply, unlift(Item.unapply))
 
   /**
@@ -69,7 +69,7 @@ object Item extends Controller {
    * Similarly, generate the HTML markup of a pre-filled form using the `unbind` method.
    */
   val edit = Action {
-    val item = Item(ItemDetail("foo", 50, Some("description")), Furniture)
+    val item = Item(ItemDetail("foo", 50, Some("description")), Seq(Furniture))
     Ok(htmlForm(itemForm.unbind(item)))
   }
 

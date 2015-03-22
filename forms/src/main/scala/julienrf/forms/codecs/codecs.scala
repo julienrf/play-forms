@@ -141,7 +141,30 @@ final case class OneOf[A](valuesToKey: Map[A, String]) extends Codec[String, A] 
       case None => Left(Seq(Error.Undefined))
     }
 
-  def encode(a: A) = valuesToKey.get(a)
+  // Assumes that valuesToKey is exhaustive
+  def encode(a: A) = Some(valuesToKey(a))
+
+}
+
+final case class SeveralOf[A](valuesToKey: Map[A, String]) extends Codec[FieldData, Seq[A]] {
+
+  require (valuesToKey.values.to[Seq].distinct.size == valuesToKey.values.size)
+
+  val keysToValue = valuesToKey map { case (v, k) => k -> v }
+
+  // If one fails, decoding fails with the first error
+  def decode(data: FieldData) =
+    data.foldLeft[Either[Seq[Throwable], Seq[A]]](Right(Nil)) { (result, k) =>
+      result.right.flatMap { as =>
+        keysToValue.get(k) match {
+          case Some(a) => Right(as :+ a)
+          case None => Left(Seq(Error.Undefined))
+        }
+      }
+    }
+
+  // Assumes that valuesToKey is exhaustive
+  def encode(as: Seq[A]) = Some(as.map(valuesToKey))
 
 }
 
@@ -155,6 +178,8 @@ object Codec {
   def min(n: Int): Codec[Int, Int] = Min(n)
 
   def oneOf[A](valuesToKey: Map[A, String]): Codec[FieldData, A] = Head >=> OneOf(valuesToKey)
+
+  def severalOf[A](valuesToKey: Map[A, String]): Codec[FieldData, Seq[A]] = SeveralOf(valuesToKey)
 
 //  def partialFunction[A, B](f: PartialFunction[A, B]): A => Result[B] = a => {
 //    if (f.isDefinedAt(a)) Success(f(a))

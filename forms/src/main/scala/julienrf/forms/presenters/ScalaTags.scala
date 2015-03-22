@@ -7,7 +7,7 @@ import scalatags.text.{Builder, Tags}
 object ScalaTags {
 
   trait Attr {
-    object attr extends Cap with Attrs[Builder, String, String]
+    object attr extends Cap with Attrs[Builder, String, String]// with InputAttrs[Builder, String, String]
     final val % = attr
   }
 

@@ -31,19 +31,19 @@ object Input {
       //      case And(lhs, rhs) => validationAttrsFromRules(lhs) ++ validationAttrsFromRules(rhs)
       case Min(num) => Map("min" -> num.toString)
       case Opt(codec) => validationAttrsFromCodecs(codec)
-      case Head | ToInt | OrElse(_, _) | OneOf(_) => Map.empty
+      case Head | ToInt | OrElse(_, _) | OneOf(_) | SeveralOf(_) => Map.empty
     }
 
-  def options(data: Seq[(String, String)])(fieldValue: Option[String]): Seq[scalatags.Text.Tag] =
+  def options(data: Seq[(String, String)])(fieldValue: Seq[String]): Seq[scalatags.Text.Tag] =
     for ((value, label) <- data) yield {
       <.option(%.value := value, if (fieldValue contains value) Seq("selected".attr := "selected") else Seq.empty[Modifier])(label)
     }
 
-  def select[A : Mandatory](opts: Option[String] => Seq[scalatags.Text.Tag]): Presenter[A] = new Presenter[A] {
+  def select[A : Mandatory : Multiple](opts: Seq[String] => Seq[scalatags.Text.Tag]): Presenter[A] = new Presenter[A] {
     def render(field: Field[A]) =
       FormUi(Seq(
-        <.select(%.name := field.name, if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier])(
-          opts(field.value.headOption)
+        <.select(%.name := field.name, if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier], if (Multiple[A].value) Seq("multiple".attr := "multiple") else Seq.empty[Modifier])(
+          opts(field.value)
         )
       ))
   }
