@@ -1,28 +1,25 @@
-package julienrf.forms.rules
+package julienrf.forms.codecs
 
-import julienrf.forms.{FieldData, FormData}
 import org.scalacheck.{Prop, Properties}
 import org.scalacheck.Prop._
 
-import scala.util.{Failure, Success, Try}
-
-object RuleTest extends Properties("Rule") {
+object CodecTest extends Properties("Codec") {
 
   val text = forAll { (s: String) =>
     s.nonEmpty ==> {
-      val rule = Rule.text
+      val rule = Codec.text
       succeeds(s, rule.decode(Seq(s))) &&
       rule.decode(Nil) == Left(Seq(Error.Required)) &&
       rule.decode(Seq("")) == Left(Seq(Error.Required))
     }
   }
   val int = forAll { (n: Int) =>
-    val rule = Rule.int
+    val rule = Codec.int
     rule.encode(n).exists(data => rule.decode(data) == Right(n)) &&
     rule.decode(Nil) == Left(Seq(Error.Required))
   }
   val min = forAll { (n: Int, m: Int) =>
-    val rule = Rule.min(m)
+    val rule = Codec.min(m)
     val result = rule.decode(n)
     if (n >= m) succeeds(n, result) else result == Left(Seq(Error.MustBeAtLeast(m))): Prop
   }
@@ -33,7 +30,7 @@ object RuleTest extends Properties("Rule") {
   val or = undecided
   val opt = {
     // FIXME I’d like to write forAll { (rule: Rule[A, B], a: A, b: B) => ... }
-    val rule = Rule.min(42)
+    val rule = Codec.min(42)
     rule.decode(0).isLeft && succeeds(None, rule.?.decode(0)) &&
     succeeds(42, rule.decode(42)) && succeeds(Some(42), rule.?.decode(42))
   }

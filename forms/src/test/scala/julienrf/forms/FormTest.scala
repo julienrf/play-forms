@@ -1,7 +1,7 @@
 package julienrf.forms
 
 import julienrf.forms.presenters.Input
-import julienrf.forms.rules.Rule
+import julienrf.forms.codecs.Codec
 import julienrf.forms.st.ScalaTags.hasAttr
 import org.scalacheck.{Prop, Properties}
 import org.scalacheck.Prop._
@@ -25,7 +25,7 @@ object FormTest extends Properties("Form") {
       case Right(a) => proved
     }
 
-    val formNumber = Form.field("foo", Rule.int)(Input.input)
+    val formNumber = Form.field("foo", Codec.int)(Input.input)
     erroneousSubmissionPrefillsFormWithInputValue(formNumber, Map("foo" -> Seq("not a number")))
   }
 

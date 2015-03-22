@@ -2,7 +2,7 @@ package julienrf.forms.presenters
 
 import ScalaTags.bundle._
 import julienrf.forms._
-import julienrf.forms.rules._
+import julienrf.forms.codecs._
 
 object Input {
 
@@ -15,23 +15,23 @@ object Input {
           %.`type` := InputType[A].tpe,
           %.name := field.name,
           %.value := field.value.headOption.getOrElse(""),
-          (Input.validationAttrs(field.rule) ++ additionalAttrs).map { case (n, v) => n.attr := v}.to[Seq]
+          (Input.validationAttrs(field.codec) ++ additionalAttrs).map { case (n, v) => n.attr := v}.to[Seq]
         )
       ))
   }
 
-  def validationAttrs[A: Mandatory](rule: Rule[_, A]): Map[String, String] =
-    if (Mandatory[A].value) validationAttrsFromRules(rule) + ("required" -> "required")
-    else validationAttrsFromRules(rule)
+  def validationAttrs[A: Mandatory](codec: Codec[_, A]): Map[String, String] =
+    if (Mandatory[A].value) validationAttrsFromCodecs(codec) + ("required" -> "required")
+    else validationAttrsFromCodecs(codec)
 
   // TODO Make this extensible
-  def validationAttrsFromRules(rule: Rule[_, _]): Map[String, String] =
-    rule match {
-      case AndThen(lhs, rhs) => validationAttrsFromRules(lhs) ++ validationAttrsFromRules(rhs)
+  def validationAttrsFromCodecs(codec: Codec[_, _]): Map[String, String] =
+    codec match {
+      case AndThen(lhs, rhs) => validationAttrsFromCodecs(lhs) ++ validationAttrsFromCodecs(rhs)
       //      case And(lhs, rhs) => validationAttrsFromRules(lhs) ++ validationAttrsFromRules(rhs)
       case Min(num) => Map("min" -> num.toString)
-      case Opt(rule) => validationAttrsFromRules(rule)
-      case Head | /*Id() |*/ ToInt | /*Or(_, _) |*/ OneOf(_) => Map.empty
+      case Opt(codec) => validationAttrsFromCodecs(codec)
+      case Head | ToInt | OrElse(_, _) | OneOf(_) => Map.empty
     }
 
   def options(data: Seq[(String, String)])(fieldValue: Option[String]): Seq[scalatags.Text.Tag] =

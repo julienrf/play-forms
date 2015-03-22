@@ -3,7 +3,7 @@ package julienrf.forms.example.controllers
 import julienrf.forms.Form.{field, form}
 import julienrf.forms.presenters.Input.{options, enumOptions}
 import julienrf.forms.presenters.PlayField.{input, select}
-import julienrf.forms.rules.Rule._
+import julienrf.forms.codecs.Codec._
 import julienrf.forms.{Form, FormUi}
 import play.api.http.Writeable
 import play.api.libs.functional.syntax._

@@ -32,7 +32,7 @@ The 0.0.0-SNAPSHOT version is compatible with Scala 2.11 and Play 2.4.x.
 
 ## Quick Start
 
-The library is built around three main concepts: `Form`s, `Rule`s and `Presenter`s.
+The library is built around three main concepts: `Form`s, `Codec`s and `Presenter`s.
 
 ### Forms
 
@@ -45,21 +45,21 @@ The simplest way to build such a value is to build a form with just one field:
 
 ```scala
 import julienrf.forms.Form
-import julienrf.forms.rules.Rule
+import julienrf.forms.codecs.Codec
 import julienrf.forms.presenters.Input
 
-val nameForm = Form.field("name", Rule.text)(Input.input)
+val nameForm = Form.field("name", Codec.text)(Input.input)
 ```
 
 `nameForm` is a form with one field, which is itself defined by three values:
 
 - a **key**, `"name"` ;
-- a validation **rule**, `Rule.text`, that defines how to get an effective value from data of the form submission. Here,
-`Rule.text` defines a computation that tries to get a `String` value ;
+- a **codec**, `Codec.text`, that defines how to get an effective value from data of the form submission. Here,
+`Codec.text` defines a computation that tries to get a `String` value ;
 - a **presenter**, `Input.input`, that defines how to display the form user interface. Here, `Input.input` simply uses
 an `<input>` HTML tag.
 
-`Rule`s and `Presenter`s are described in the next sections. The remaining of this sections gives more details about `Form`s.
+`Codec`s and `Presenter`s are described in the next sections. The remaining of this sections gives more details about `Form`s.
 
 #### Display
 
@@ -86,7 +86,7 @@ The above code produces the following HTML markup:
 ```
 
 Note that the input type has automatically been set to `text` and that a validation attribute `required` has
-automatically been added, consistently with the rule definition for the field.
+automatically been added, consistently with the codec definition for the field.
 
 #### Submission process
 
@@ -137,37 +137,37 @@ Here, `userForm` nests an hypothetical `addressForm` (of type `Form[Address]`).
 
 Composition makes it possible to reuse not only the validation rules but also the HTML presentation of a form.
 
-### Rules
+### Codecs
 
-Each field of a form is associated to a [`Rule`](http://julienrf.github.io/play-forms/0.0.0-SNAPSHOT/api/#julienrf.forms.rules.Rule).
+Each field of a form is associated to a [`Codec`](http://julienrf.github.io/play-forms/0.0.0-SNAPSHOT/api/#julienrf.forms.codecs.Codec).
 This one defines the process that validates and transforms the encoded data of the form submission into a high-level
 data type.
 
-Rules are designed to be simple, general and composable. A `Rule[A, B]` is essentially a function `A => Try[B]`.
+Codecs are designed to be simple, general and composable. A `Codec[A, B]` is essentially a function `A => Either[Seq[Throwable], B]`.
 
 #### Chaining
 
-You can chain several validation rules by using the `andThen` method:
+You can chain several codecs by using the `andThen` method:
 
 ```scala
-Rule.int andThen Rule.min(42)
+Codec.int andThen Codec.min(42)
 ```
 
-This rule first tries to coerce the form data to an `Int` and then checks that it is at least equal to `42`.
+This codec first tries to coerce the form data to an `Int` and then checks that it is at least equal to `42`.
 
 Note that you can also use the symbolic alias `>=>` for `andThen`:
 
 ```scala
-Rule.int >=> Rule.min(42)
+Codec.int >=> Codec.min(42)
 ```
 
 #### Optionality
 
-The `opt` method turns a `Rule[A, B]` into a `Rule[A, Option[B]]`, that is a rule that turns failures into successful
+The `opt` method turns a `Codec[A, B]` into a `Codec[A, Option[B]]`, that is a codec that turns failures into successful
 empty (`None`) values. There is also a symbolic alias `?`:
 
 ```scala
-Rule.int.?
+Codec.int.?
 ```
 
 ### Presenters

@@ -1,12 +1,11 @@
 package julienrf.forms
 
-import julienrf.forms.rules.Rule
 import julienrf.forms.presenters.{Field, Presenter}
+import julienrf.forms.codecs.Codec
 import play.api.libs.functional.{FunctionalCanBuild, InvariantFunctor, ~}
 import play.api.mvc.{BodyParsers, BodyParser, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 // FIXME abstract over FormUi (we just need a SemiGroup)
 sealed trait Form[A] {
@@ -21,26 +20,26 @@ sealed trait Form[A] {
   })
 }
 
-final case class FieldForm[A](field: (String, Rule[FieldData, A]), presenter: Presenter[A]) extends Form[A] {
-  val (name, rule) = field
+final case class FieldForm[A](field: (String, Codec[FieldData, A]), presenter: Presenter[A]) extends Form[A] {
+  val (name, codec) = field
   def bind(data: FormData) = {
     val value = data.getOrElse(name, Nil)
-    rule.decode(value)
-      .left.map(errors => presenter.render(Field(name, rule, value, errors)))
+    codec.decode(value)
+      .left.map(errors => presenter.render(Field(name, codec, value, errors)))
   }
-  def unbind(a: A) = presenter.render(Field(name, rule, rule.encode(a) getOrElse Nil, Nil))
-  def empty = presenter.render(Field(name, rule, Nil, Nil))
+  def unbind(a: A) = presenter.render(Field(name, codec, codec.encode(a) getOrElse Nil, Nil))
+  def empty = presenter.render(Field(name, codec, Nil, Nil))
   def keys = Seq(name)
 }
 
 object Form {
 
-  def field[A](name: String, rule: Rule[FieldData, A])(presenter: Presenter[A]): Form[A] =
-    FieldForm((name, rule), presenter)
+  def field[A](name: String, codec: Codec[FieldData, A])(presenter: Presenter[A]): Form[A] =
+    FieldForm((name, codec), presenter)
 
   def form[A](key: String, fa: Form[A]): Form[A] =
     fa match {
-      case FieldForm((subKey, rule), presenter) => FieldForm((s"$key.$subKey", rule), presenter)
+      case FieldForm((subKey, codec), presenter) => FieldForm((s"$key.$subKey", codec), presenter)
       case Form.InMap(fa, f1, f2) => Form.InMap(form(key, fa), f1, f2)
       case Form.Apply(fa, fb) => Form.Apply(form(key, fa), form(key, fb))
     }

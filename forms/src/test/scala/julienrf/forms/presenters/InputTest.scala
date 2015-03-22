@@ -1,7 +1,7 @@
 package julienrf.forms.presenters
 
-import julienrf.forms.rules.Rule
-import julienrf.forms.rules.Rule.{int, min, text}
+import julienrf.forms.codecs.Codec
+import julienrf.forms.codecs.Codec.{int, min, text}
 import julienrf.forms.{FieldData, Form}
 import julienrf.forms.st.ScalaTags.hasAttr
 import org.scalacheck.Prop._
@@ -24,7 +24,7 @@ object InputTest extends Properties("Input") {
       hasAllSuppliedValidationAttrs && hasNoOtherValidationAttr
     }
 
-    def p[A : Mandatory : InputType](nameAndMaybeValues: (String, Option[String])*)(rule: Rule[FieldData, A]): Boolean = {
+    def p[A : Mandatory : InputType](nameAndMaybeValues: (String, Option[String])*)(rule: Codec[FieldData, A]): Boolean = {
       val path = "foo"
       val attrsWithoutRequired = nameAndMaybeValues.filter { case (n, _) => n != "required" }
       val optRemovesRequired = hasOnlyValidationAttrs(attrsWithoutRequired: _*)(Form.field(path, rule.?)(Input.input))
@@ -39,7 +39,7 @@ object InputTest extends Properties("Input") {
   property("the validation attributes derivation logic is extensible") = undecided
 
   property("derive the input type according to the Reads type") = {
-    def p[A : Mandatory : InputType](tpe: String)(rule: Rule[FieldData, A]): Boolean =
+    def p[A : Mandatory : InputType](tpe: String)(rule: Codec[FieldData, A]): Boolean =
       hasAttr("type", Some(tpe))(Form.field("foo", rule)(Input.input).empty.html)
 
     p("text")(text) &&

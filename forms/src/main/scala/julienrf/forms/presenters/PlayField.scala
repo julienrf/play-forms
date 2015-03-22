@@ -1,7 +1,7 @@
 package julienrf.forms.presenters
 
 import julienrf.forms.FormUi
-import julienrf.forms.rules._
+import julienrf.forms.codecs._
 
 /**
  * Produces HTML similar to what form helpers built-in with Play produce, but with the following changes:
@@ -30,7 +30,7 @@ object PlayField {
           <.dt(<.label(%.`for` := field.name)(label)), // TODO Generate a random id
           <.dd(inputPresenter(field).render(field).html),
           for (error <- field.errors) yield <.dd(%.`class` := "error")(errorToMessage(error)),
-          for (info <- infos(field.rule)) yield <.dd(%.`class` := "info")(info)
+          for (info <- infos(field.codec)) yield <.dd(%.`class` := "info")(info)
         )
       ))
   }
@@ -43,12 +43,12 @@ object PlayField {
   }
 
   // TODO Use i18n
-  def infos[A : Mandatory](rule: Rule[_, A]): Seq[String] =
+  def infos[A : Mandatory](rule: Codec[_, A]): Seq[String] =
     if (Mandatory[A].value) "Required" +: infosFromRules(rule)
     else infosFromRules(rule)
 
   // TODO Extensibility
-  def infosFromRules(rule: Rule[_, _]): Seq[String] = rule match {
+  def infosFromRules(rule: Codec[_, _]): Seq[String] = rule match {
     case AndThen(lhs, rhs) => infosFromRules(lhs) ++ infosFromRules(rhs)
     case Min(num) => Seq(s"Minimum value: $num")
     case Opt(rule) => infosFromRules(rule)

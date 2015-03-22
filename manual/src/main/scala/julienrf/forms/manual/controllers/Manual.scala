@@ -12,10 +12,10 @@ object Manual extends Controller {
 
     val nameFormCode = CodePresenter(new {
       import julienrf.forms.Form
-      import julienrf.forms.rules.Rule
+      import julienrf.forms.codecs.Codec$
       import julienrf.forms.presenters.Input
 
-      val nameForm = Form.field("name", Rule.text)(Input.input)
+      val nameForm = Form.field("name", Codec.text)(Input.input)
     })
 
     import nameFormCode.value.nameForm
