@@ -11,9 +11,9 @@ sealed abstract class Rule[A, B](val decode: A => Either[Seq[Throwable], B], val
 
   final def andThen[C](that: Rule[B, C]): Rule[A, C] = AndThen(this, that)
 
-//  final def && [C](that: Rule[A, C]): Rule[A, (B, C)] = And(this, that)
+  final def orElse[C](that: Rule[A, C]): Rule[A, Either[B, C]] = OrElse(this, that)
 
-//  final def || [C](that: Rule[A, C]): Rule[A, Either[B, C]] = Or(this, that)
+  final def || [C](that: Rule[A, C]): Rule[A, Either[B, C]] = this orElse that
 
   final def ? : Rule[A, Option[B]] = opt
 
@@ -21,11 +21,14 @@ sealed abstract class Rule[A, B](val decode: A => Either[Seq[Throwable], B], val
 
 }
 
-// FIXME Useful?
-sealed abstract class Constraint[A](p: A => Option[Seq[Throwable]]) extends Rule[A, A](a => p(a) match {
+sealed abstract class Constraint[A](val p: A => Option[Seq[Throwable]]) extends Rule[A, A](a => p(a) match {
   case Some(errors) => Left(errors)
   case None => Right(a)
-}, Some(_))
+}, Some(_)) {
+
+  final def && (that: Constraint[A]): Constraint[A] = And(this, that)
+
+}
 
 case object Head extends Rule[FieldData, String]({ data =>
   data.headOption.filter(_.nonEmpty) match {
@@ -35,8 +38,20 @@ case object Head extends Rule[FieldData, String]({ data =>
 }, s => Some(Seq(s)))
 
 case class AndThen[A, B, C](rule1: Rule[A, B], rule2: Rule[B, C]) extends Rule[A, C](a => rule1.decode(a).right.flatMap(rule2.decode), c => rule2.encode(c).flatMap(rule1.encode))
-//case class And[A, B, C](rule1: Rule[A, B], rule2: Rule[A, C]) extends Rule[A, (B, C)](a => (rule1.run(a) and rule2.run(a)).tupled, rule2.unbind)
-//case class Or[A, B, C](rule1: Rule[A, B], rule2: Rule[A, C]) extends Rule[A, Either[B, C]](a => rule1.decode(a).left.flatMap(_ => rule2.decode(a)), bOrC match { case Left(b) => rule1.encode(b) case Right(c) => rule2.encode(c) })
+
+case class And[A, B, C](constraint1: Constraint[A], constraint2: Constraint[A]) extends Constraint[A](a => (constraint1.p(a), constraint2.p(a)) match {
+  case (None, None) => None
+  case (Some(errors), None) => Some(errors)
+  case (None, Some(errors)) => Some(errors)
+  case (Some(e1s), Some(e2s)) => Some(e1s ++ e2s)
+})
+
+case class OrElse[A, B, C](rule1: Rule[A, B], rule2: Rule[A, C]) extends Rule[A, Either[B, C]](a => {
+  rule1.decode(a) match {
+    case Right(b) => Right(Left(b))
+    case Left(_) => rule2.decode(a).right.map(c => Right(c))
+  }
+}, { case Left(b) => rule1.encode(b) case Right(c) => rule2.encode(c) })
 
 case object ToInt extends Rule[String, Int](s => try { Right(s.toInt) } catch { case NonFatal(e) => Left(Seq(e)) }, n => Some(n.toString))
 case class Min(n: Int) extends Constraint[Int](a => if (a >= n) None else Some(Seq(Error.MustBeAtLeast(n))))
