@@ -8,27 +8,23 @@ import scala.util.{Failure, Success, Try}
 
 object RuleTest extends Properties("Rule") {
 
-  val text = forAll { (s: String, k: String) =>
-    (k.nonEmpty && s.nonEmpty) ==> {
+  val text = forAll { (s: String) =>
+    s.nonEmpty ==> {
       val rule = Rule.text
-      succeeds(s, rule.run(Seq(s))) &&
-      rule.run(Nil).isFailure &&
-      rule.run(Seq("")).isFailure
+      succeeds(s, rule.decode(Seq(s))) &&
+      rule.decode(Nil).isFailure &&
+      rule.decode(Seq("")).isFailure
     }
   }
-  val int = forAll { (n: Int, k: String) =>
-    k.nonEmpty ==> {
-      val rule = Rule.int
-      succeeds(n, rule.run(rule.show(n))) &&
-      rule.run(Nil).isFailure
-    }
+  val int = forAll { (n: Int) =>
+    val rule = Rule.int
+    succeeds(n, rule.decode(rule.encode(n).get)) && // TODO Remove `.get`
+    rule.decode(Nil).isFailure
   }
-  val min = forAll { (n: Int, m: Int, k: String) =>
-    k.nonEmpty ==> {
-      val rule = Rule.min(m)
-      val result = rule.run(n)
-      if (n >= m) succeeds(n, result) else result.isFailure
-    }
+  val min = forAll { (n: Int, m: Int) =>
+    val rule = Rule.min(m)
+    val result = rule.decode(n)
+    if (n >= m) succeeds(n, result) else result.isFailure: Prop
   }
 
   property("usual rules") = text && int && min
@@ -38,8 +34,8 @@ object RuleTest extends Properties("Rule") {
   val opt = {
     // FIXME I’d like to write forAll { (rule: Rule[A, B], a: A, b: B) => ... }
     val rule = Rule.min(42)
-    rule.run(0).isFailure && succeeds(None, rule.?.run(0)) &&
-    succeeds(42, rule.run(42)) && succeeds(Some(42), rule.?.run(42))
+    rule.decode(0).isFailure && succeeds(None, rule.?.decode(0)) &&
+    succeeds(42, rule.decode(42)) && succeeds(Some(42), rule.?.decode(42))
   }
 
   property("composition") = kleisli && or && opt

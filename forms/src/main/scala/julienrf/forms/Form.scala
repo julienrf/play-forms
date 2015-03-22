@@ -25,12 +25,12 @@ final case class FieldForm[A](field: (String, Rule[FieldData, A]), presenter: Pr
   val (name, rule) = field
   def bind(data: FormData) = {
     val value = data.getOrElse(name, Nil)
-    rule.run(value) match {
+    rule.decode(value) match {
       case Success(a) => Right(a)
       case Failure(error) => Left(presenter.render(Field(name, rule, value, Seq(error))))
     }
   }
-  def unbind(a: A) = presenter.render(Field(name, rule, rule.show(a), Nil))
+  def unbind(a: A) = presenter.render(Field(name, rule, rule.encode(a) getOrElse Nil, Nil))
   def empty = presenter.render(Field(name, rule, Nil, Nil))
   def keys = Seq(name)
 }
