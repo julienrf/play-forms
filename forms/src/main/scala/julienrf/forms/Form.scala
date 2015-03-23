@@ -7,11 +7,43 @@ import play.api.mvc.{BodyParsers, BodyParser, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+ * A `Form[A]` models an HTML form with one or more fields. It provides the following features:
+ *  - decode the form data to an `A` value ;
+ *  - display an empty (not filled) form to the client ;
+ *  - display a filled form with and without validation errors.
+ *
+ * Forms also provides means of composition. This allows you to reuse both the decoding logic and the associated
+ * form presentation (the HTML markup). Two ways of composition are supported: '''aggregating''' and '''nesting'''.
+ *
+ */
 // FIXME abstract over FormUi (we just need a SemiGroup)
 sealed trait Form[A] {
+
+  /**
+   * Attempts to decode the form data.
+   *
+   * @param data Form data
+   * @return a `Right` value containing the decoded value, or a `Left` value presenting the form (filled with the form
+   *         data and showing validation errors).
+   */
   def bind(data: FormData): Either[FormUi, A]
+
+  /**
+   * Presents the form (with fields pre-filled with data of the specified value).
+   *
+   * @param a value to fill the form with
+   */
   def unbind(a: A): FormUi
+
+  /**
+   * Presents the form (with empty — not filled — fields).
+   */
   def empty: FormUi
+
+  /**
+   * All the keys of `this` `Form`
+   */
   def keys: Seq[String]
 
   def bodyParser(errorHandler: FormUi => Future[Result])(implicit ec: ExecutionContext): BodyParser[A] = BodyParsers.parse.urlFormEncoded.validateM(data => bind(data) match {
