@@ -117,7 +117,7 @@ sealed abstract class Constraint[A] extends Codec[A, A] {
     case None => Right(a)
   }
 
-  final def encode(a: A) = Some(a)
+  final def encode(a: A) = if (validate(a).isEmpty) Some(a) else None
 
   /**
    * Alias for [[and]]
@@ -151,11 +151,11 @@ case object Head extends Codec[FieldData, String] {
 }
 
 
-final case class AndThen[A, B, C](rule1: Codec[A, B], rule2: Codec[B, C]) extends Codec[A, C] {
+final case class AndThen[A, B, C](codec1: Codec[A, B], codec2: Codec[B, C]) extends Codec[A, C] {
 
-  def decode(a: A) = rule1.decode(a).right.flatMap(rule2.decode)
+  def decode(a: A) = codec1.decode(a).right.flatMap(codec2.decode)
 
-  def encode(c: C) = rule2.encode(c).flatMap(rule1.encode)
+  def encode(c: C) = codec2.encode(c).flatMap(codec1.encode)
 
 }
 
@@ -172,16 +172,16 @@ final case class And[A](constraint1: Constraint[A], constraint2: Constraint[A]) 
 }
 
 
-final case class OrElse[A, B, C](rule1: Codec[A, B], rule2: Codec[A, C]) extends Codec[A, Either[B, C]] {
+final case class OrElse[A, B, C](codec1: Codec[A, B], codec2: Codec[A, C]) extends Codec[A, Either[B, C]] {
 
-  def decode(a: A) = rule1.decode(a) match {
+  def decode(a: A) = codec1.decode(a) match {
     case Right(b) => Right(Left(b))
-    case Left(_) => rule2.decode(a).right.map(c => Right(c))
+    case Left(_) => codec2.decode(a).right.map(c => Right(c))
   }
 
   def encode(bOrC: Either[B, C]) = bOrC match {
-    case Left(b) => rule1.encode(b)
-    case Right(c) => rule2.encode(c)
+    case Left(b) => codec1.encode(b)
+    case Right(c) => codec2.encode(c)
   }
 
 }
