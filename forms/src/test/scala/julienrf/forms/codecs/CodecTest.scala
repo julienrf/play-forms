@@ -27,7 +27,7 @@ object CodecTest extends Properties("Codec") {
     laws.encodeDecode(Codec.boolean, b)
   }
   val min = forAll { (n: Int, m: Int) =>
-    val constraint = Codec.min(m)
+    val constraint = Constraint.min(m)
     val result = constraint.decode(n)
     if (n >= m) succeeds(n, result) else result == Left(Seq(Error.MustBeAtLeast(m)))
   }
@@ -65,7 +65,7 @@ object CodecTest extends Properties("Codec") {
       })
       decode && encode
     }
-    forAll { (n: Int, m: Int) => laws(Codec.min(n), m) }
+    forAll { (n: Int, m: Int) => laws(Constraint.min(n), m) }
   }
 
   val kleisli = {
@@ -76,8 +76,8 @@ object CodecTest extends Properties("Codec") {
         (codec1 >=> codec2).encode(c) == codec2.encode(c).flatMap(codec1.encode)
     }
     forAll { (n: Int, m: Int, b: Boolean) =>
-      laws.decode(Codec.int, Codec.min(m), if (b) Seq(n.toString) else Nil) &&
-      laws.encode(Codec.int, Codec.min(m), n)
+      laws.decode(Codec.int, Constraint.min(m), if (b) Seq(n.toString) else Nil) &&
+      laws.encode(Codec.int, Constraint.min(m), n)
     }
   }
   val orElse = {
@@ -120,7 +120,7 @@ object CodecTest extends Properties("Codec") {
       val encode = constraint.encode(a) == constraint1.encode(a).flatMap(_ => constraint2.encode(a))
       decode && encode
     }
-    forAll { (x: Int, y: Int, z: Int) => laws(Codec.min(x), Codec.min(y), z) }
+    forAll { (x: Int, y: Int, z: Int) => laws(Constraint.min(x), Constraint.min(y), z) }
   }
 
   property("combinators") = kleisli && orElse && opt && and

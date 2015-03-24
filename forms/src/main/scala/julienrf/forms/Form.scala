@@ -128,7 +128,7 @@ object Form {
       def apply[A, B](fa: Form[A], fb: Form[B]) = Apply(fa, fb)
     }
 
-  protected final case class FieldForm[A](key: String, codec: Codec[FieldData, A], presenter: Presenter[A]) extends Form[A] {
+  private final case class FieldForm[A](key: String, codec: Codec[FieldData, A], presenter: Presenter[A]) extends Form[A] {
     def decode(data: FormData) = {
       val value = data.getOrElse(key, Nil)
       codec.decode(value)
@@ -139,7 +139,7 @@ object Form {
     def keys = Seq(key)
   }
 
-  protected final case class InMap[A, B](fa: Form[A], f1: A => B, f2: B => A) extends Form[B] {
+  private final case class InMap[A, B](fa: Form[A], f1: A => B, f2: B => A) extends Form[B] {
     def decode(data: FormData) = fa.decode(data) match {
       case Left(errors) => Left(errors)
       case Right(a) => Right(f1(a))
@@ -149,7 +149,7 @@ object Form {
     def keys = fa.keys
   }
 
-  protected final case class Apply[A, B](fa: Form[A], fb: Form[B]) extends Form[A ~ B] {
+  private final case class Apply[A, B](fa: Form[A], fb: Form[B]) extends Form[A ~ B] {
     require((fa.keys intersect fb.keys).isEmpty) // You can not have two fields with the same path
     def decode(data: FormData) = (fa.decode(data), fb.decode(data)) match {
       case (Right(a), Right(b)) => Right(new ~(a, b))

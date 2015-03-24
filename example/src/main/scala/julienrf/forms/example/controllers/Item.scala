@@ -4,6 +4,7 @@ import julienrf.forms.Form.{field, form}
 import julienrf.forms.presenters.Input.{options, enumOptions}
 import julienrf.forms.presenters.PlayField.{input, select, checkbox}
 import julienrf.forms.codecs.Codec._
+import julienrf.forms.codecs.Constraint.min
 import julienrf.forms.{Form, FormUi}
 import play.api.http.Writeable
 import play.api.libs.functional.syntax._

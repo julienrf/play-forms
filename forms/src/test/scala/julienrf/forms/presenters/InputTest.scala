@@ -1,7 +1,8 @@
 package julienrf.forms.presenters
 
 import julienrf.forms.codecs.Codec
-import julienrf.forms.codecs.Codec.{int, min, text}
+import julienrf.forms.codecs.Codec.{int, text}
+import julienrf.forms.codecs.Constraint.min
 import julienrf.forms.{FieldData, Form}
 import julienrf.forms.st.ScalaTags.hasAttr
 import org.scalacheck.Prop._
