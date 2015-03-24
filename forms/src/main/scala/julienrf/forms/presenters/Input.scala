@@ -13,7 +13,7 @@ object Input {
       FormUi(Seq(
         <.input(
           %.`type` := InputType[A].tpe,
-          %.name := field.name,
+          %.name := field.key,
           %.value := field.value.headOption.getOrElse(""),
           (Input.validationAttrs(field.codec) ++ additionalAttrs).map { case (n, v) => n.attr := v }.to[Seq]
         )
@@ -43,7 +43,7 @@ object Input {
     def render(field: Field[A]) =
       FormUi(Seq(
         <.select(
-          %.name := field.name,
+          %.name := field.key,
           if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier],
           if (Multiple[A].value) Seq("multiple".attr := "multiple") else Seq.empty[Modifier]
         )(
@@ -64,7 +64,7 @@ object Input {
       FormUi(Seq(
         <.input(
           %.`type` := "checkbox",
-          %.name := field.name,
+          %.name := field.key,
           %.value := "true",
           additionalAttrs.map { case (n, v) => n.attr := v}.to[Seq],
           if (field.value.nonEmpty) Seq("checked".attr := "checked") else Seq.empty[Modifier]

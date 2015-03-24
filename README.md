@@ -90,12 +90,12 @@ automatically been added, consistently with the codec definition for the field.
 
 #### Submission process
 
-The `bind` method takes the submission data and returns either an `A` value, in case of success,
+The `decode` method takes the submission data and returns either an `A` value, in case of success,
 or a presentation of the form with the validation errors. You can use it as follows:
 
 ```scala
 val submission = Action(parse.urlFormEncoded) { request =>
-  userForm.bind(request.body) match {
+  userForm.decode(request.body) match {
     case Left(errors) => BadRequest(htmlForm(errors))
     case Right(user) => Ok(user.toString)
   }

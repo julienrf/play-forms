@@ -71,7 +71,7 @@ object Item extends Controller {
    */
   val edit = Action {
     val item = Item(ItemDetail("foo", 50, Some("description")), Seq(Furniture), isActive = false)
-    Ok(htmlForm(itemForm.unbind(item)))
+    Ok(htmlForm(itemForm.render(item)))
   }
 
   /**
@@ -79,7 +79,7 @@ object Item extends Controller {
    * otherwise the value bound to the form submission is displayed.
    */
   val submission = Action(parse.urlFormEncoded) { request =>
-    itemForm.bind(request.body) match {
+    itemForm.decode(request.body) match {
       case Left(errors) => BadRequest(htmlForm(errors))
       case Right(item) => Ok(item.toString)
     }

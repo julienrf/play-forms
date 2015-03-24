@@ -19,7 +19,7 @@ object FormTest extends Properties("Form") {
   property("unbind") = undecided
 
   property("bind") = {
-    def erroneousSubmissionPrefillsFormWithInputValue[A](form: Form[A], data: FormData): Prop = form.bind(data) match {
+    def erroneousSubmissionPrefillsFormWithInputValue[A](form: Form[A], data: FormData): Prop = form.decode(data) match {
       case Left(errors) =>
         data.values.flatten.forall(value => hasAttr("value", Some(value))(errors.html))
       case Right(a) => proved

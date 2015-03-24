@@ -18,7 +18,7 @@ object PlayField {
    */
   // TODO Handle id, help, showConstraints, error, showErrors and additionalInputAttrs
   def input[A : Mandatory : InputType](label: String): Presenter[A] =
-    withPresenter(field => Input.input[A]("id" -> field.name), label)
+    withPresenter(field => Input.input[A]("id" -> field.key), label)
 
   def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Seq[scalatags.Text.Tag]): Presenter[A] =
     withPresenter(field => Input.select[A](opts), label)
@@ -27,8 +27,8 @@ object PlayField {
     def render(field: Field[Boolean]) =
       layout(field)()(
         <.dd(
-          Input.checkbox("id" -> field.name).render(field).html, // TODO Generate a random id
-          <.label(%.`for` := field.name)(label)
+          Input.checkbox("id" -> field.key).render(field).html, // TODO Generate a random id
+          <.label(%.`for` := field.key)(label)
         )
       )
   }
@@ -36,7 +36,7 @@ object PlayField {
   def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
     def render(field: Field[A]) =
       layout(field)(
-          <.label(%.`for` := field.name)(label) // TODO Generate a random id
+          <.label(%.`for` := field.key)(label) // TODO Generate a random id
       )(
           <.dd(inputPresenter(field).render(field).html),
           for (error <- field.errors) yield <.dd(%.`class` := "error")(errorToMessage(error)),
