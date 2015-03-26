@@ -225,14 +225,14 @@ object Codec {
 
   }
 
-  // FIXME Useful?
-  private[forms] final case class InMap[A, B, C](codec: Codec[A, B], f1: B => C, f2: C => B) extends Codec[A, C] {
-
-    def decode(a: A) = codec.decode(a).right.map(f1)
-
-    def encode(c: C) = codec.encode(f2(c))
-
-  }
+//  // FIXME Useful?
+//  private[forms] final case class InMap[A, B, C](codec: Codec[A, B], f1: B => C, f2: C => B) extends Codec[A, C] {
+//
+//    def decode(a: A) = codec.decode(a).right.map(f1)
+//
+//    def encode(c: C) = codec.encode(f2(c))
+//
+//  }
 
   private[forms] final case class OneOf[A](valuesToKey: Map[A, String]) extends Codec[String, A] {
 

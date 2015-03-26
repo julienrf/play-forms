@@ -1,7 +1,20 @@
 val commonSettings = Seq(
   organization := "org.julienrf",
   version := "0.0.0-SNAPSHOT",
-  scalaVersion := "2.11.6"
+  scalaVersion := "2.11.6",
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-encoding", "UTF-8",
+    "-feature",
+    "-unchecked",
+    "-Xlint",
+    "-Yno-adapted-args",
+    "-Ywarn-dead-code",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-value-discard",
+    "-Xfuture",
+    "-language:existentials"
+  )
 )
 
 val `play-forms` = project.in(file("forms"))
