@@ -2,6 +2,7 @@ package julienrf.forms
 
 import julienrf.forms.presenters.Input
 import julienrf.forms.codecs.Codec
+import julienrf.forms.st.ScalaTags
 import julienrf.forms.st.ScalaTags.hasAttr
 import org.scalacheck.{Prop, Properties}
 import org.scalacheck.Prop._
@@ -12,10 +13,13 @@ object FormTest extends Properties("Form") {
   property("invariant functor") = forAll { (ss: Seq[String]) =>
     import play.api.libs.functional.syntax._
 
+    def comparable[A](uiOrA: Either[FormUi, A]): Either[String, A] =
+      uiOrA.left.map(ui => ScalaTags.render(ui.html))
+
     def equal[A](form1: Form[A], form2: Form[A], data: FormData, a: A) =
-//      form1.empty == form2.empty &&
-//      form1.decode(data) == form2.decode(data) &&
-//      form1.render(a) == form2.render(a) &&
+      ScalaTags.render(form1.empty.html) == ScalaTags.render(form2.empty.html) &&
+      comparable(form1.decode(data)) == comparable(form2.decode(data)) &&
+      ScalaTags.render(form1.render(a).html) == ScalaTags.render(form2.render(a).html) &&
       form1.keys == form2.keys
 
     def id[A](form: Form[A], data: FormData, a: A) =
@@ -37,9 +41,9 @@ object FormTest extends Properties("Form") {
       form3.keys == form1.keys ++ form2.keys &&
       ((form1.decode(data), form2.decode(data), form3.decode(data)) match {
         case (Right(a), Right(b), Right((aa, bb))) => a == aa && b == bb
-        case (Left(es), Right(_), Left(ees))       => true || es == ees
-        case (Right(_), Left(es), Left(ees))       => true || es == ees
-        case (Left(es1), Left(es2), Left(es3))     => true || es3 == es1 ++ es2
+        case (Left(es), Right(_), Left(ees))       => ScalaTags.render(ees.html).containsSlice(ScalaTags.render(es.html))
+        case (Right(_), Left(es), Left(ees))       => ScalaTags.render(ees.html).containsSlice(ScalaTags.render(es.html))
+        case (Left(es1), Left(es2), Left(es3))     => ScalaTags.render(es3.html) == ScalaTags.render((es1 ++ es2).html)
         case _                                     => false
       })
     }
