@@ -20,6 +20,7 @@ object ScalaTags {
 
   trait Implicits extends Aggregate with Cap
 
-  object bundle extends Attr with Tag with Implicits
+  trait Bundle extends Attr with Tag with Implicits
+  object Bundle extends Bundle
 
 }

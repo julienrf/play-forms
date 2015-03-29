@@ -1,6 +1,6 @@
 package julienrf.forms.presenters
 
-import ScalaTags.bundle._
+import ScalaTags.Bundle._
 import julienrf.forms._
 import julienrf.forms.codecs.Codec._
 import julienrf.forms.codecs.Constraint.{Min, And}

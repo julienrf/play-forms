@@ -12,7 +12,7 @@ import julienrf.forms.codecs._
  */
 object PlayField {
 
-  import ScalaTags.bundle._
+  import ScalaTags.Bundle._
 
   /**
    * Similar to Play’s `inputText` or `inputDate`. It automatically sets the input type according

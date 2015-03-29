@@ -15,7 +15,7 @@ object ScalaTags {
   }
 
   def render(html: Seq[scalatags.Text.Modifier]): String = {
-    import julienrf.forms.presenters.ScalaTags.bundle._
+    import julienrf.forms.presenters.ScalaTags.Bundle._
     <.div(html).render.drop(5).dropRight(6)
   }
 

@@ -16,15 +16,24 @@ object CodePresenter {
     val ExprPresentation = symbolOf[ExprPresentation[A]].asClass.asType
 
     val pos = a.tree.pos
-    val startLine = pos.source.offsetToLine(pos.start) + 1 // Skip the opening brace
-    val endLine = pos.source.offsetToLine(pos.end)
+    val startLineOffset = pos.source.offsetToLine(pos.start)
+    val endLineOffset = pos.source.offsetToLine(pos.end)
+    val (startLine, endLine) =
+      if (startLineOffset == endLineOffset) (startLineOffset, endLineOffset + 1) // Expression
+      else (startLineOffset + 1, endLineOffset) // Block (skip the opening brace)
 
     if (endLine < startLine) c.abort(c.enclosingPosition, "Please write a code block")
 
     val codeSource = new String(pos.source.content.slice(pos.source.lineToOffset(startLine), pos.source.lineToOffset(endLine)))
+    val indentValue = codeSource.takeWhile(_ == ' ').length
+
+    val deindentedSource =
+      codeSource.split('\n')
+        .map(line => line.drop(indentValue))
+        .mkString("\n")
 
     a.tree match {
-      case q"{ ..$stats }" => q"new $ExprPresentation($a, $codeSource)"
+      case q"{ ..$stats }" => q"new $ExprPresentation($a, $deindentedSource)"
       case _ => c.abort(c.enclosingPosition, "Please write a code block")
     }
   }

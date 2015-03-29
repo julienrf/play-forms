@@ -79,7 +79,8 @@ val manual = project.in(file("manual"))
   .disablePlugins(PlayLayoutPlugin)
   .settings(commonSettings: _*)
   .settings(
-    scalacOptions ++= Seq("-Yrangepos"/*, "-Ymacro-debug-lite"*/)
+    scalacOptions ++= Seq("-Yrangepos"/*, "-Ymacro-debug-lite"*/),
+    libraryDependencies += "org.pegdown" % "pegdown" % "1.5.0"
   )
   .dependsOn(`play-forms`, `manual-macros`)
 
