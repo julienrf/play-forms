@@ -36,22 +36,24 @@ object FormTest extends Properties("Form") {
   property("apply") = forAll { (ss1: Seq[String], ss2: Seq[String]) =>
     import play.api.libs.functional.syntax._
 
-    def apply[A, B](form1: Form[A], form2: Form[B], data: FormData) = {
+    def apply[A, B](form1: Form[A], form2: Form[B], data: FormData, a: A, b: B) = {
       val form3 = (form1 ~ form2).tupled
       form3.keys == form1.keys ++ form2.keys &&
       ((form1.decode(data), form2.decode(data), form3.decode(data)) match {
         case (Right(a), Right(b), Right((aa, bb))) => a == aa && b == bb
-        case (Left(es), Right(_), Left(ees))       => ScalaTags.render(ees.html).containsSlice(ScalaTags.render(es.html))
-        case (Right(_), Left(es), Left(ees))       => ScalaTags.render(ees.html).containsSlice(ScalaTags.render(es.html))
+        case (Left(es), Right(b), Left(ees))       => ScalaTags.render(ees.html) == ScalaTags.render(es.html ++ form2.render(b).html)
+        case (Right(a), Left(es), Left(ees))       => ScalaTags.render(ees.html) == ScalaTags.render(form1.render(a).html ++ es.html)
         case (Left(es1), Left(es2), Left(es3))     => ScalaTags.render(es3.html) == ScalaTags.render((es1 ++ es2).html)
         case _                                     => false
-      })
+      }) &&
+      ScalaTags.render(form3.render((a, b)).html) == ScalaTags.render(form1.render(a).html ++ form2.render(b).html) &&
+      ScalaTags.render(form3.empty.html) == ScalaTags.render(form1.empty.html ++ form2.empty.html)
     }
 
     val form1 = Form.field("bar", Codec.text)(Input.input)
     val form2 = Form.field("baz", Codec.text)(Input.input)
 
-    apply(form1, form2, Map("bar" -> ss1, "baz" -> ss2))
+    apply(form1, form2, Map("bar" -> ss1, "baz" -> ss2), "value1", "value2")
   }
 
   property("nesting") = {
