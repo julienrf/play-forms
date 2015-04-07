@@ -1,6 +1,8 @@
 package julienrf.forms.presenters
 
-import scalatags.Text.{TypedTag, Aggregate, Cap}
+import play.api.mvc.Call
+
+import scalatags.Text.{Aggregate, Cap, TypedTag}
 import scalatags.generic.Attrs
 import scalatags.text.{Builder, Tags}
 
@@ -22,5 +24,11 @@ object ScalaTags {
 
   trait Bundle extends Attr with Tag with Implicits
   object Bundle extends Bundle
+
+
+  def form(call: Call)(modifiers: Bundle.Modifier*): Bundle.Tag = {
+    import Bundle._
+    <.form(%.method := call.method, %.action := call.url)(modifiers: _*)
+  }
 
 }

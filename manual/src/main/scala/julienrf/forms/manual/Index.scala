@@ -14,7 +14,7 @@ object Index extends Document {
     findRev(document).map(name => s"/$name") getOrElse sys.error("Unable to compute URL")
 
   val document = s"""
-# Documentation
+## Documentation
 
 - [Installation](${url(Installation)})
 - [Getting Started](${url(GettingStarted)})

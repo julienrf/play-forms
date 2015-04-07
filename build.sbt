@@ -80,7 +80,12 @@ val manual = project.in(file("manual"))
   .settings(commonSettings: _*)
   .settings(
     scalacOptions ++= Seq("-Yrangepos"/*, "-Ymacro-debug-lite"*/),
-    libraryDependencies += "org.pegdown" % "pegdown" % "1.5.0"
+    libraryDependencies += "org.pegdown" % "pegdown" % "1.5.0",
+    herokuAppName in Compile := "play-forms-doc",
+    herokuProcessTypes in Compile := Map(
+      "web" -> "target/universal/stage/bin/manual -Dhttp.port=$PORT"
+    ),
+    herokuSkipSubProjects in Compile := false
   )
   .dependsOn(`play-forms`, `manual-macros`)
 

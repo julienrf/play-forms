@@ -2,7 +2,7 @@ package julienrf.forms.manual
 
 object Installation extends Document {
   val document = s"""
-# Installation
+## Installation
 
 This software is released on the maven central repository, with organization name `org.julienrf` and artifact name
 `play-forms`.

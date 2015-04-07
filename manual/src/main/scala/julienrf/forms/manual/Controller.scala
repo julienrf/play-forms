@@ -26,6 +26,7 @@ object Controller extends play.api.mvc.Controller {
 
   def layout(document: Document) = <.html(
     <.head(
+      <.meta(%.charset := "utf-8"),
       "title".tag.apply("play-forms")
     ),
     <.body(
@@ -37,4 +38,5 @@ object Controller extends play.api.mvc.Controller {
    implicit val writeableTag: Writeable[scalatags.Text.Tag] =
      Writeable((tag: scalatags.Text.Tag) => ("<!DOCTYPE html>" ++ tag.toString()).getBytes(Codec.utf_8.charset), Some(HTML))
 
+  val gettingStartedForm = GettingStarted.userPostCode.value.userPost
  }
