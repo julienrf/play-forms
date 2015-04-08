@@ -1,4 +1,4 @@
-# play-forms [![Build Status](https://travis-ci.org/julienrf/play-forms.svg)](https://travis-ci.org/julienrf/play-forms) [![Coverage Status](https://coveralls.io/repos/julienrf/play-forms/badge.svg)](https://coveralls.io/r/julienrf/play-forms) [![Stories in Ready](https://badge.waffle.io/julienrf/play-forms.png?label=ready&title=Ready)](https://waffle.io/julienrf/play-forms) [![Join the chat at https://gitter.im/julienrf/play-forms](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/julienrf/play-forms?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# play-forms [![Build Status](https://travis-ci.org/julienrf/play-forms.svg)](https://travis-ci.org/julienrf/play-forms) [![Coverage Status](https://coveralls.io/repos/julienrf/play-forms/badge.svg)](https://coveralls.io/r/julienrf/play-forms) [![Codacy Badge](https://www.codacy.com/project/badge/e3bfa9fc866b4f5bb418b52da6733297)](https://www.codacy.com/app/julien_2/play-forms) [![Stories in Ready](https://badge.waffle.io/julienrf/play-forms.png?label=ready&title=Ready)](https://waffle.io/julienrf/play-forms) [![Join the chat at https://gitter.im/julienrf/play-forms](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/julienrf/play-forms?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Another way to handle HTML forms in your Play application.
 
@@ -17,19 +17,7 @@ The design of the Play built-in form API suffers from several flaws:
 
 play-forms aims to solve all these issues.
 
-## Installation
-
-This software artifact is released available on the maven central repository, with organization name `org.julienrf` and artifact name `play-forms`.
-
-If you are using sbt add the following dependency:
-
-```scala
-libraryDependencies += "org.julienrf" %% "play-forms" % "0.0.0-SNAPSHOT"
-```
-
-The 0.0.0-SNAPSHOT version is compatible with Scala 2.11 and Play 2.4.x.
-
-## Documentation
+## Installation and Usage
 
 [play-forms documentation](https://play-forms-doc.herokuapp.com/).
 
