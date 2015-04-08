@@ -2,6 +2,8 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.4.0-M3")
 
+addSbtPlugin("com.typesafe.sbt" % "sbt-less" % "1.0.6")
+
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.0.4")

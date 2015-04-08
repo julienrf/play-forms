@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+}
+
+article {
+  line-height: 1.6;
+  word-wrap: break-word;
+  padding: .5em .5em;
+  max-width: 55em;
+  margin: 0 auto;
+  text-align: justify;
+}
+
+a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+a:hover, article a:focus, article a:active {
+  text-decoration: underline;
+}
+
+article * {
+  box-sizing: border-box;
+}
+
+article code {
+  border-radius: 3px;
+  padding: .2em 0;
+  margin: 0;
+  /* Copied from prism.css */
+  font-family: Consolas, Monaco, 'Andale Mono', monospace;
+  background-color: #f5f2f0;
+}
+
+article code:before, article code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0"
+}
+
+article pre code:before, article pre code:after {
+  content: normal;
+}

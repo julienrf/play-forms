@@ -27,11 +27,15 @@ object Controller extends play.api.mvc.Controller {
   def layout(document: Document) = <.html(
     <.head(
       <.meta(%.charset := "utf-8"),
+      <.meta(%.name := "viewport", %.content := "width=device-width,initial-scale=1"),
+      <.link(%.rel := "stylesheet", %.href := controllers.routes.Assets.versioned("prism.css").url),
+      <.link(%.rel := "stylesheet", %.href := controllers.routes.Assets.versioned("style.css").url),
       "title".tag.apply("play-forms")
     ),
     <.body(
       <.h1(<.a(%.href := "/")("play-forms")),
-      "article".tag.apply(raw(pegdown.markdownToHtml(document.document)))
+      "article".tag.apply(raw(pegdown.markdownToHtml(document.document))),
+      <.script(%.src := controllers.routes.Assets.versioned("prism.js").url)
     )
   )
 

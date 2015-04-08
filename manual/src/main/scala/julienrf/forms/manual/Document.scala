@@ -9,7 +9,7 @@ trait Document {
 object Document {
 
   def source(exprPresentation: ExprPresentation[_]): String = s"""
-~~~ scala
+~~~ language-scala
 ${exprPresentation.source}
 ~~~
 """

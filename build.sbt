@@ -91,8 +91,10 @@ val manual = project.in(file("manual"))
 
 val `play-forms-project` = project.in(file("."))
   .settings(commonSettings: _*)
-  .settings(name := "play-forms-project")
-  .dependsOn(`play-forms`)
+  .settings(
+    name := "play-forms-project",
+    includeFilter in (Assets, LessKeys.less) := "style.less"
+  ).dependsOn(`play-forms`)
   .aggregate(`play-forms`)
 
 lazy val homePage = settingKey[File]("Path to the project home page")

@@ -9,8 +9,8 @@ This software is released on the maven central repository, with organization nam
 
 If you are using sbt, add the following dependency to your build:
 
-~~~ scala
-libraryDependencies += "org.julienrf" %% "play-forms" % "$version
+~~~ language-scala
+libraryDependencies += "org.julienrf" %% "play-forms" % "$version"
 ~~~
 
 The $version version is compatible with Scala 2.11 and Play 2.4.
