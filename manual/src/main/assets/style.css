@@ -46,3 +46,7 @@ article code:before, article code:after {
 article pre code:before, article pre code:after {
   content: normal;
 }
+
+article pre code {
+  word-wrap: normal;
+}
