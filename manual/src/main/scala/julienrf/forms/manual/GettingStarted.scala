@@ -23,8 +23,8 @@ object GettingStarted extends Document {
     import play.api.libs.functional.syntax._
 
     val userForm = (
-      field("name", text)(input("Name")) ~
-      field("age", int >=> min(0))(input("Age"))
+      field("name", text)(input(label = "Name")) ~
+      field("age", int >=> min(0))(input(label = "Age"))
     )(UserData.apply, unlift(UserData.unapply))
   })
 
@@ -106,10 +106,15 @@ Then, define a `Form[UserData]` value defining the decoding process of the form 
 ${Document.source(userFormCode)}
 
 This code defines an HTML form with two fields. Each field is defined by a **key**, a **codec** and
-a **presenter**. The key of the first field is `name`, its codec tries to read the field data as a (non empty) `String`
-value, and its presenter produces an HTML markup similar to the `inputText` Play helper. The definition of the `age`
-field is similar, but it is worth noting that its codec also uses a constraint checking that the decoded number is
-positive.
+a **presenter**. The key is a unique identifier for the field, the codec defines how to decode and encode the form data,
+and the presenter defines how to display the field to the client.
+
+Let’s have a closer look at the first field, whose key is `name`. Its codec is `text`, which tries to read the
+field data as a (non empty) `String` value. Finally, its presenter is `input(label = "Name")`, which produces an HTML
+markup similar to the `inputText` Play helper.
+
+The definition of the `age` field is similar, but it is worth noting that its codec also uses a constraint checking that
+the decoded number is positive.
 
 ### Showing a Form
 
