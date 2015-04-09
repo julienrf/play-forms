@@ -118,7 +118,7 @@ of the form fields. You can then put this markup within an HTML template showing
 
 ${Document.source(formHtmlCode)}
 
-You can define an action that shows an empty form (i.e. a form that has not been field yet) as follows:
+You can define an action that shows an empty form (i.e. a form that has not been filled yet) as follows:
 
 ${Document.source(showFormCode)}
 
