@@ -2,7 +2,7 @@ language: scala
 jdk:
   - oraclejdk8
 script: "sbt clean coverage test"
-after_success: "sbt coveralls"
+after_success: "sbt coveralls coverageReport coverageAggregate codacyCoverage"
 notifications:
   webhooks:
     urls:
