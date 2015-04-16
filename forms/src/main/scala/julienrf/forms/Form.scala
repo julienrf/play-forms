@@ -1,7 +1,7 @@
 package julienrf.forms
 
-import julienrf.forms.presenters.{Field, Presenter}
 import julienrf.forms.codecs.Codec
+import julienrf.forms.presenters.{Field, Presenter}
 import play.api.libs.functional.{FunctionalCanBuild, InvariantFunctor, ~}
 import play.api.mvc.{BodyParsers, BodyParser, Result}
 
@@ -44,10 +44,11 @@ sealed trait Form[A] {
    */
   def keys: Seq[String]
 
-  def bodyParser(errorHandler: FormUi => Future[Result])(implicit ec: ExecutionContext): BodyParser[A] = BodyParsers.parse.urlFormEncoded.validateM(data => decode(data) match {
-    case Left(errors) => errorHandler(errors).map(Left(_))
-    case Right(a) => Future.successful(Right(a))
-  })
+  def bodyParser(errorHandler: FormUi => Future[Result])(implicit ec: ExecutionContext): BodyParser[A] =
+    BodyParsers.parse.urlFormEncoded.validateM(data => decode(data) match {
+      case Left(errors) => errorHandler(errors).map(Left(_))
+      case Right(a) => Future.successful(Right(a))
+    })
 }
 
 /**
@@ -109,7 +110,7 @@ object Form {
    *   val prefixedForm = Form.form("bar", fooForm)
    *   assert(prefixedForm.keys == Seq("bar.foo"))
    * }}}
-   * 
+   *
    * @param key the prefix to prepend to all the fields of the `fa` form.
    * @param fa the form whose fields are to be prepended by the prefix
    */
@@ -124,42 +125,42 @@ object Form {
    */
   implicit val formInstances: InvariantFunctor[Form] with FunctionalCanBuild[Form] =
     new InvariantFunctor[Form] with FunctionalCanBuild[Form] {
-      def inmap[A, B](fa: Form[A], f1: A => B, f2: B => A) = InMap(fa, f1, f2)
-      def apply[A, B](fa: Form[A], fb: Form[B]) = Apply(fa, fb)
+      def inmap[A, B](fa: Form[A], f1: A => B, f2: B => A): Form[B] = InMap(fa, f1, f2)
+      def apply[A, B](fa: Form[A], fb: Form[B]): Form[A ~ B] = Apply(fa, fb)
     }
 
   private final case class FieldForm[A](key: String, codec: Codec[FieldData, A], presenter: Presenter[A]) extends Form[A] {
-    def decode(data: FormData) = {
+    def decode(data: FormData): Either[FormUi, A] = {
       val value = data.getOrElse(key, Nil)
       codec.decode(value)
         .left.map(errors => presenter.render(Field(key, codec, value, errors)))
     }
-    def render(a: A) = presenter.render(Field(key, codec, codec.encode(a) getOrElse Nil, Nil))
-    def empty = presenter.render(Field(key, codec, Nil, Nil))
-    def keys = Seq(key)
+    def render(a: A): FormUi = presenter.render(Field(key, codec, codec.encode(a) getOrElse Nil, Nil))
+    def empty: FormUi = presenter.render(Field(key, codec, Nil, Nil))
+    def keys: Seq[String] = Seq(key)
   }
 
   private final case class InMap[A, B](fa: Form[A], f1: A => B, f2: B => A) extends Form[B] {
-    def decode(data: FormData) = fa.decode(data) match {
+    def decode(data: FormData): Either[FormUi, B] = fa.decode(data) match {
       case Left(errors) => Left(errors)
       case Right(a) => Right(f1(a))
     }
-    def render(b: B) = fa.render(f2(b))
-    def empty = fa.empty
-    def keys = fa.keys
+    def render(b: B): FormUi = fa.render(f2(b))
+    def empty: FormUi = fa.empty
+    def keys: Seq[String] = fa.keys
   }
 
   private final case class Apply[A, B](fa: Form[A], fb: Form[B]) extends Form[A ~ B] {
     require((fa.keys intersect fb.keys).isEmpty) // You can not have two fields with the same path
-    def decode(data: FormData) = (fa.decode(data), fb.decode(data)) match {
+    def decode(data: FormData): Either[FormUi, A ~ B] = (fa.decode(data), fb.decode(data)) match {
       case (Right(a), Right(b)) => Right(new ~(a, b))
       case (Right(a), Left(es)) => Left(fa.render(a) ++ es)
       case (Left(es), Right(b)) => Left(es ++ fb.render(b))
       case (Left(es1), Left(es2)) => Left(es1 ++ es2)
     }
-    def render(ab: A ~ B) = fa.render(ab._1) ++ fb.render(ab._2)
-    def empty = fa.empty ++ fb.empty
-    def keys = fa.keys ++ fb.keys
+    def render(ab: A ~ B): FormUi = fa.render(ab._1) ++ fb.render(ab._2)
+    def empty: FormUi = fa.empty ++ fb.empty
+    def keys: Seq[String] = fa.keys ++ fb.keys
   }
 }
 

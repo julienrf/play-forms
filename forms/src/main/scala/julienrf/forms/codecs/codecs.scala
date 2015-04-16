@@ -160,20 +160,20 @@ object Codec {
 
   private[forms] final case class AndThen[A, B, C](codec1: Codec[A, B], codec2: Codec[B, C]) extends Codec[A, C] {
 
-    def decode(a: A) = codec1.decode(a).right.flatMap(codec2.decode)
+    def decode(a: A): Either[Seq[Throwable], C] = codec1.decode(a).right.flatMap(codec2.decode)
 
-    def encode(c: C) = codec2.encode(c).flatMap(codec1.encode)
+    def encode(c: C): Option[A] = codec2.encode(c).flatMap(codec1.encode)
 
   }
 
   private[forms] final case class OrElse[A, B, C](codec1: Codec[A, B], codec2: Codec[A, C]) extends Codec[A, Either[B, C]] {
 
-    def decode(a: A) = codec1.decode(a) match {
+    def decode(a: A): Either[Seq[Throwable], Either[B, C]] = codec1.decode(a) match {
       case Right(b) => Right(Left(b))
       case Left(_) => codec2.decode(a).right.map(c => Right(c))
     }
 
-    def encode(bOrC: Either[B, C]) = bOrC match {
+    def encode(bOrC: Either[B, C]): Option[A] = bOrC match {
       case Left(b) => codec1.encode(b)
       case Right(c) => codec2.encode(c)
     }
@@ -182,9 +182,9 @@ object Codec {
 
   private[forms] final case class Opt[A, B](codec: Codec[A, B]) extends Codec[A, Option[B]] {
 
-    def decode(a: A) = Right(codec.decode(a).right.toOption)
+    def decode(a: A): Either[Seq[Throwable], Option[B]] = Right(codec.decode(a).right.toOption)
 
-    def encode(maybeB: Option[B]) = maybeB.flatMap(codec.encode)
+    def encode(maybeB: Option[B]): Option[A] = maybeB.flatMap(codec.encode)
 
   }
 
@@ -193,35 +193,35 @@ object Codec {
 
   private[forms] case object Head extends Codec[FieldData, String] {
 
-    def decode(fieldData: FieldData) =
+    def decode(fieldData: FieldData): Either[Seq[Throwable], String] =
       fieldData.headOption.filter(_.nonEmpty) match {
         case Some(s) => Right(s)
         case None => Left(Seq(Error.Required))
       }
 
-    def encode(string: String) = Some(Seq(string))
+    def encode(string: String): Option[FieldData] = Some(Seq(string))
 
   }
 
 
   private[forms] case object ToInt extends Codec[String, Int] {
 
-    def decode(s: String) = try {
+    def decode(s: String): Either[Seq[Throwable], Int] = try {
       Right(s.toInt)
     } catch {
       case NonFatal(e) => Left(Seq(e))
     }
 
-    def encode(n: Int) = Some(n.toString)
+    def encode(n: Int): Option[String] = Some(n.toString)
 
   }
 
 
   private[forms] case object ToBoolean extends Codec[FieldData, Boolean] {
 
-    def decode(data: FieldData) = Right(data.nonEmpty)
+    def decode(data: FieldData): Either[Seq[Throwable], Boolean] = Right(data.nonEmpty)
 
-    def encode(b: Boolean) = Some(if (b) Seq("true") else Seq.empty)
+    def encode(b: Boolean): Option[FieldData] = Some(if (b) Seq("true") else Seq.empty)
 
   }
 
@@ -240,14 +240,14 @@ object Codec {
 
     val keysToValue = valuesToKey map { case (v, k) => k -> v }
 
-    def decode(s: String) =
+    def decode(s: String): Either[Seq[Throwable], A] =
       keysToValue.get(s) match {
         case Some(a) => Right(a)
         case None => Left(Seq(Error.Undefined))
       }
 
     // Assumes that valuesToKey is exhaustive
-    def encode(a: A) = Some(valuesToKey(a))
+    def encode(a: A): Option[String] = Some(valuesToKey(a))
 
   }
 
@@ -258,7 +258,7 @@ object Codec {
     val keysToValue = valuesToKey map { case (v, k) => k -> v }
 
     // If one fails, decoding fails with the first error
-    def decode(data: FieldData) =
+    def decode(data: FieldData): Either[Seq[Throwable], Seq[A]] =
       data.foldLeft[Either[Seq[Throwable], Seq[A]]](Right(Nil)) { (result, k) =>
         result.right.flatMap { as =>
           keysToValue.get(k) match {
@@ -269,7 +269,7 @@ object Codec {
       }
 
     // Assumes that valuesToKey is exhaustive
-    def encode(as: Seq[A]) = Some(as.map(valuesToKey))
+    def encode(as: Seq[A]): Option[FieldData] = Some(as.map(valuesToKey))
 
   }
 }
@@ -291,12 +291,12 @@ sealed abstract class Constraint[A] extends Codec[A, A] {
    */
   def validate(a: A): Option[Seq[Throwable]]
 
-  final def decode(a: A) = validate(a) match {
+  final def decode(a: A): Either[Seq[Throwable], A] = validate(a) match {
     case Some(errors) => Left(errors)
     case None => Right(a)
   }
 
-  final def encode(a: A) = if (validate(a).isEmpty) Some(a) else None
+  final def encode(a: A): Option[A] = if (validate(a).isEmpty) Some(a) else None
 
   /**
    * Alias for [[and]]
@@ -330,7 +330,7 @@ object Constraint {
 
   private[forms] final case class And[A](constraint1: Constraint[A], constraint2: Constraint[A]) extends Constraint[A] {
 
-    def validate(a: A) = (constraint1.validate(a), constraint2.validate(a)) match {
+    def validate(a: A): Option[Seq[Throwable]] = (constraint1.validate(a), constraint2.validate(a)) match {
       case (None, None) => None
       case (Some(errors), None) => Some(errors)
       case (None, Some(errors)) => Some(errors)
@@ -344,7 +344,7 @@ object Constraint {
 
   private[forms] final case class Min(n: Int) extends Constraint[Int] {
 
-    def validate(m: Int) = if (m >= n) None else Some(Seq(Error.MustBeAtLeast(n)))
+    def validate(m: Int): Option[Seq[Throwable]] = if (m >= n) None else Some(Seq(Error.MustBeAtLeast(n)))
 
   }
 

@@ -18,7 +18,7 @@ trait Presenter[A] {
 
 /**
  * Form field.
- * 
+ *
  * @param key the key of the field.
  * @param codec the codec of the field.
  * @param value the value of the field.

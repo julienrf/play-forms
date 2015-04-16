@@ -1,9 +1,9 @@
 package julienrf.forms.presenters
 
-import julienrf.forms.FormUi
 import julienrf.forms.codecs.Codec.{AndThen, Opt}
 import julienrf.forms.codecs.Constraint.Min
 import julienrf.forms.codecs._
+import julienrf.forms.FormUi
 
 /**
  * Produces HTML similar to what form helpers built-in with Play produce, but with the following changes:
@@ -26,7 +26,7 @@ object PlayField {
     withPresenter(field => Input.select[A](opts), label)
 
   def checkbox(label: String): Presenter[Boolean] = new Presenter[Boolean] {
-    def render(field: Field[Boolean]) =
+    def render(field: Field[Boolean]): FormUi =
       layout(field)()(
         <.dd(
           Input.checkbox("id" -> field.key).render(field).html, // TODO Generate a random id
@@ -36,7 +36,7 @@ object PlayField {
   }
 
   def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
-    def render(field: Field[A]) =
+    def render(field: Field[A]): FormUi =
       layout(field)(
           <.label(%.`for` := field.key)(label) // TODO Generate a random id
       )(
@@ -46,7 +46,7 @@ object PlayField {
       )
   }
 
-  def layout(field: Field[_])(dtContent: Modifier*)(dds: Modifier*) =
+  def layout(field: Field[_])(dtContent: Modifier*)(dds: Modifier*): FormUi =
     FormUi(Seq(
       <.dl((if (field.errors.nonEmpty) Seq(%.`class` := "error") else Nil): _*)(
         <.dt(dtContent),

@@ -2,8 +2,8 @@ package julienrf.forms.presenters
 
 import play.api.mvc.Call
 
-import scalatags.Text.{Aggregate, Cap, TypedTag}
 import scalatags.generic.Attrs
+import scalatags.Text.{Aggregate, Cap, TypedTag}
 import scalatags.text.{Builder, Tags}
 
 object ScalaTags {

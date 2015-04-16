@@ -16,13 +16,13 @@ object Labeled {
     right(Input.checkbox, label)
 
   def left[A](label: String, input: Presenter[A]): Presenter[A] = new Presenter[A] {
-    def render(field: Field[A]) = FormUi(Seq(
+    def render(field: Field[A]): FormUi = FormUi(Seq(
       <.label(label, input.render(field).html)
     ))
   }
 
   def right[A](input: Presenter[A], label: String): Presenter[A] = new Presenter[A] {
-    def render(field: Field[A]) = FormUi(Seq(
+    def render(field: Field[A]): FormUi = FormUi(Seq(
       <.label(input.render(field).html, label)
     ))
   }

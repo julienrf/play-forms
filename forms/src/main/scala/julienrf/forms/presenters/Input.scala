@@ -62,7 +62,7 @@ object Input {
   val checkbox: Presenter[Boolean] = checkbox()
 
   def checkbox(additionalAttrs: (String, String)*): Presenter[Boolean] = new Presenter[Boolean] {
-    def render(field: Field[Boolean]) =
+    def render(field: Field[Boolean]): FormUi =
       FormUi(Seq(
         <.input(
           %.`type` := "checkbox",

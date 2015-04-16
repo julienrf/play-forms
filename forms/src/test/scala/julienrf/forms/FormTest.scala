@@ -1,7 +1,7 @@
 package julienrf.forms
 
-import julienrf.forms.presenters.Input
 import julienrf.forms.codecs.Codec
+import julienrf.forms.presenters.Input
 import julienrf.forms.st.ScalaTags
 import julienrf.forms.st.ScalaTags.hasAttr
 import org.scalacheck.{Prop, Properties}
@@ -16,16 +16,16 @@ object FormTest extends Properties("Form") {
     def comparable[A](uiOrA: Either[FormUi, A]): Either[String, A] =
       uiOrA.left.map(ui => ScalaTags.render(ui.html))
 
-    def equal[A](form1: Form[A], form2: Form[A], data: FormData, a: A) =
+    def equal[A](form1: Form[A], form2: Form[A], data: FormData, a: A): Boolean =
       ScalaTags.render(form1.empty.html) == ScalaTags.render(form2.empty.html) &&
       comparable(form1.decode(data)) == comparable(form2.decode(data)) &&
       ScalaTags.render(form1.render(a).html) == ScalaTags.render(form2.render(a).html) &&
       form1.keys == form2.keys
 
-    def id[A](form: Form[A], data: FormData, a: A) =
+    def id[A](form: Form[A], data: FormData, a: A): Boolean =
       equal(form.inmap(identity[A], identity[A]), form, data, a)
 
-    def compose[A, B, C](form: Form[A], f1: A => B, f2: B => A, g1: B => C, g2: C => B, data: FormData, c: C) =
+    def compose[A, B, C](form: Form[A], f1: A => B, f2: B => A, g1: B => C, g2: C => B, data: FormData, c: C): Boolean =
       equal(form.inmap(f1, f2).inmap(g1, g2), form.inmap(g1 compose f1, f2 compose g2), data, c)
 
     val form = Form.field("foo", Codec.text)(Input.input)
@@ -36,7 +36,7 @@ object FormTest extends Properties("Form") {
   property("apply") = forAll { (ss1: Seq[String], ss2: Seq[String]) =>
     import play.api.libs.functional.syntax._
 
-    def apply[A, B](form1: Form[A], form2: Form[B], data: FormData, a: A, b: B) = {
+    def apply[A, B](form1: Form[A], form2: Form[B], data: FormData, a: A, b: B): Boolean = {
       val form3 = (form1 ~ form2).tupled
       form3.keys == form1.keys ++ form2.keys &&
       ((form1.decode(data), form2.decode(data), form3.decode(data)) match {
@@ -59,7 +59,7 @@ object FormTest extends Properties("Form") {
   property("nesting") = {
     import play.api.libs.functional.syntax._
 
-    def nest[A](prefix: String, form: Form[A]) =
+    def nest[A](prefix: String, form: Form[A]): Boolean =
       Form.form(prefix, form).keys == form.keys.map(key => prefix ++ "." ++ key)
 
     val form1 = Form.field("bar", Codec.text)(Input.input)
