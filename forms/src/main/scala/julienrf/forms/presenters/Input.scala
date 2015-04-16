@@ -1,17 +1,17 @@
 package julienrf.forms.presenters
 
 import ScalaTags.Bundle._
-import julienrf.forms._
+import julienrf.forms.FormUi
+import julienrf.forms.codecs.Codec
 import julienrf.forms.codecs.Codec._
 import julienrf.forms.codecs.Constraint.{Min, And}
-import julienrf.forms.codecs._
 
 object Input {
 
   def input[A : Mandatory : InputType]: Presenter[A] = input[A]()
 
   def input[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A] = new Presenter[A] {
-    def render(field: Field[A]) =
+    def render(field: Field[A]): FormUi =
       FormUi(Seq(
         <.input(
           %.`type` := InputType[A].tpe,
@@ -42,7 +42,7 @@ object Input {
     }
 
   def select[A : Mandatory : Multiple](opts: Seq[String] => Seq[scalatags.Text.Tag]): Presenter[A] = new Presenter[A] {
-    def render(field: Field[A]) =
+    def render(field: Field[A]): FormUi =
       FormUi(Seq(
         <.select(
           %.name := field.key,

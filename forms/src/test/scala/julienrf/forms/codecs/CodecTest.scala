@@ -98,9 +98,9 @@ object CodecTest extends Properties("Codec") {
   }
   val opt = {
     object laws {
-      def decode[A](codec: Codec[A, _], a: A) =
+      def decode[A](codec: Codec[A, _], a: A): Boolean =
         succeeds(codec.decode(a).right.toOption, codec.?.decode(a))
-      def encode[B](codec: Codec[_, B], maybeB: Option[B]) =
+      def encode[B](codec: Codec[_, B], maybeB: Option[B]): Boolean =
         codec.?.encode(maybeB) == (maybeB flatMap codec.encode)
     }
     forAll { (maybeN: Option[Int]) =>
@@ -109,7 +109,7 @@ object CodecTest extends Properties("Codec") {
     }
   }
   val and = {
-    def laws[A](constraint1: Constraint[A], constraint2: Constraint[A], a: A) = {
+    def laws[A](constraint1: Constraint[A], constraint2: Constraint[A], a: A): Boolean = {
       val constraint = constraint1 && constraint2
       val decode = constraint.decode(a) == ((constraint1.decode(a), constraint2.decode(a)) match {
         case (Right(`a`), Right(`a`)) => Right(a)
