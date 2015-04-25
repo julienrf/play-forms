@@ -1,10 +1,10 @@
-package julienrf.forms.presenters
+package julienrf.forms.scalatags
 
 import julienrf.forms.codecs.Codec
 import julienrf.forms.codecs.Codec.{int, text}
 import julienrf.forms.codecs.Constraint.min
-import julienrf.forms.{FieldData, Form}
-import julienrf.forms.st.ScalaTags.hasAttr
+import julienrf.forms.{Mandatory, InputType, FieldData}
+import org.apache.commons.lang3.StringEscapeUtils
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
@@ -17,10 +17,10 @@ object InputTest extends Properties("Input") {
       val hasNoOtherValidationAttr =
         html5ValidationAttributes
           .filter(n => !nameAndMaybeValues.exists { case (nn, _) => nn == n })
-          .forall(n => !hasAttr(n, None)(form.empty.html))
+          .forall(n => !hasAttr(n, None)(form.empty))
       val hasAllSuppliedValidationAttrs =
         nameAndMaybeValues.forall { case (name, maybeValue) =>
-          hasAttr(name, maybeValue)(form.empty.html)
+          hasAttr(name, maybeValue)(form.empty)
         }
       hasAllSuppliedValidationAttrs && hasNoOtherValidationAttr
     }
@@ -41,12 +41,21 @@ object InputTest extends Properties("Input") {
 
   property("derive the input type according to the Reads type") = {
     def p[A : Mandatory : InputType](tpe: String)(rule: Codec[FieldData, A]): Boolean =
-      hasAttr("type", Some(tpe))(Form.field("foo", rule)(Input.input).empty.html)
+      hasAttr("type", Some(tpe))(Form.field("foo", rule)(Input.input).empty)
 
     p("text")(text) &&
     p("number")(int)
   }
 
   property("the input type derivation logic is extensible") = undecided
+
+  def hasAttr(name: String, maybeValue: Option[String])(html: ScalaTags.Bundle.Frag): Boolean = {
+    maybeValue match {
+      case Some(value) =>
+        html.render.containsSlice(s"""$name="${StringEscapeUtils.escapeXml11(value)}"""")
+      case None =>
+        html.render.containsSlice(name)
+    }
+  }
 
 }

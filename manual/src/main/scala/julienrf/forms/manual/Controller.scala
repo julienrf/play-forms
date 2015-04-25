@@ -1,6 +1,7 @@
 package julienrf.forms.manual
 
-import julienrf.forms.presenters.ScalaTags.Bundle._
+import julienrf.forms.scalatags.ScalaTags
+import ScalaTags.Bundle._
 import org.pegdown.{Extensions, PegDownProcessor}
 import play.api.http.Writeable
 import play.api.mvc.{Action, Codec}

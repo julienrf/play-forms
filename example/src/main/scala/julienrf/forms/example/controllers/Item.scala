@@ -1,11 +1,13 @@
 package julienrf.forms.example.controllers
 
-import julienrf.forms.Form.{field, form}
-import julienrf.forms.presenters.Input.{options, enumOptions}
-import julienrf.forms.presenters.PlayField.{input, select, checkbox}
+import julienrf.forms.scalatags.Input.{options, enumOptions}
+import julienrf.forms.scalatags.{ScalaTags, PlayField}
+import julienrf.forms.scalatags.ScalaTags.Bundle.modifierSemiGroup
+import julienrf.forms.scalatags.Form
+import julienrf.forms.scalatags.Form.{field, form}
+import PlayField.{input, select, checkbox}
 import julienrf.forms.codecs.Codec._
 import julienrf.forms.codecs.Constraint.min
-import julienrf.forms.{Form, FormUi}
 import play.api.http.Writeable
 import play.api.libs.functional.syntax._
 import play.api.mvc._
@@ -91,7 +93,7 @@ object Item extends Controller {
     Ok(item.toString)
   }
 
-  def bodyParser[A](form: Form[A], html: FormUi => Tag): BodyParser[A] = form.bodyParser(errors => Future.successful(BadRequest(html(errors))))
+  def bodyParser[A](form: Form[A], html: ScalaTags.Bundle.Frag => Tag): BodyParser[A] = form.bodyParser(errors => Future.successful(BadRequest(html(errors))))
 
   implicit val writeableTag: Writeable[Tag] = Writeable((tag: Tag) => tag.toString().getBytes(Codec.utf_8.charset), Some(HTML))
 
@@ -99,11 +101,11 @@ object Item extends Controller {
    * HTML template for the form
    * @return A form tag containing the given fields and a submit button
    */
-  def htmlForm(fields: FormUi): Tag = {
-    import julienrf.forms.presenters.ScalaTags.Bundle._
+  def htmlForm(fields: ScalaTags.Bundle.Frag): Tag = {
+    import ScalaTags.Bundle._
     val call = routes.Item.submission()
     <.form(%.action := call.url, %.method := call.method)(
-      fields.html,
+      fields,
       <.button("Submit")
     )
   }

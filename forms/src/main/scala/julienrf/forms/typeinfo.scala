@@ -1,4 +1,4 @@
-package julienrf.forms.presenters
+package julienrf.forms
 
 import scala.language.higherKinds
 

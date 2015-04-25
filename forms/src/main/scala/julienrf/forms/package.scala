@@ -1,10 +1,12 @@
 package julienrf
 
+import julienrf.forms.Presenter
+
 /**
- * The library is built around three abstractions: [[julienrf.forms.Form Form]], [[julienrf.forms.codecs.Codec Codec]] and
- * [[julienrf.forms.presenters.Presenter Presenter]].
+ * The library is built around three abstractions: [[julienrf.forms.Forms.Form Form]], [[julienrf.forms.codecs.Codec Codec]] and
+ * [[Presenter Presenter]].
  *
- * A [[julienrf.forms.Form Form]] combines several [[julienrf.forms.codecs.Codec Codecs]] and [[julienrf.forms.presenters.Presenter Presenters]] to define:
+ * A [[julienrf.forms.Forms.Form Form]] combines several [[julienrf.forms.codecs.Codec Codecs]] and [[Presenter Presenters]] to define:
  *  - how to decode the form data ;
  *  - how to display an empty (not filled) form ;
  *  - how to display a filled form with and without validation errors.

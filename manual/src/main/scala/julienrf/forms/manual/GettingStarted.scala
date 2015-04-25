@@ -1,5 +1,6 @@
 package julienrf.forms.manual
 
+import julienrf.forms.scalatags.{ScalaTags, PlayField}
 import play.api.mvc.Results.Ok
 import play.api.mvc.Action
 import Controller.writeableTag
@@ -19,7 +20,7 @@ object GettingStarted extends Document {
     import julienrf.forms.Form.field
     import julienrf.forms.codecs.Codec.{int, text}
     import julienrf.forms.codecs.Constraint.min
-    import julienrf.forms.presenters.PlayField.input
+    import PlayField.input
     import play.api.libs.functional.syntax._
 
     val userForm = (
@@ -42,8 +43,8 @@ object GettingStarted extends Document {
 //    }
     val formHtmlCode = CodePresenter (new {
       import julienrf.forms.FormUi
-      import julienrf.forms.presenters.ScalaTags.Bundle._
-      import julienrf.forms.presenters.ScalaTags.form
+      import ScalaTags.Bundle._
+      import ScalaTags.form
 
       def user(userFormUi: FormUi) =
         form(routes.Application.userPost())(

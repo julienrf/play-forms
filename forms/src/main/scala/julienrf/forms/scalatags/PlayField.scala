@@ -1,9 +1,9 @@
-package julienrf.forms.presenters
+package julienrf.forms.scalatags
 
-import julienrf.forms.codecs.{Codec, Error}
+import julienrf.forms._
 import julienrf.forms.codecs.Codec.{AndThen, Opt}
 import julienrf.forms.codecs.Constraint.Min
-import julienrf.forms.FormUi
+import julienrf.forms.codecs.{Codec, Error}
 
 /**
  * Produces HTML similar to what form helpers built-in with Play produce, but with the following changes:
@@ -19,40 +19,38 @@ object PlayField {
    * to the type parameter `A`. It works with numbers too.
    */
   // TODO Handle id, help, showConstraints, error, showErrors and additionalInputAttrs
-  def input[A : Mandatory : InputType](label: String): Presenter[A] =
+  def input[A : Mandatory : InputType](label: String): Presenter[A, Frag] =
     withPresenter(field => Input.input[A]("id" -> field.key), label)
 
-  def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Seq[scalatags.Text.Tag]): Presenter[A] =
+  def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Seq[_root_.scalatags.Text.Tag]): Presenter[A, Frag] =
     withPresenter(field => Input.select[A](opts), label)
 
-  def checkbox(label: String): Presenter[Boolean] = new Presenter[Boolean] {
-    def render(field: Field[Boolean]): FormUi =
+  def checkbox(label: String): Presenter[Boolean, Frag] = new Presenter[Boolean, Frag] {
+    def render(field: Field[Boolean]): Frag =
       layout(field)()(
         <.dd(
-          Input.checkbox("id" -> field.key).render(field).html, // TODO Generate a random id
+          Input.checkbox("id" -> field.key).render(field), // TODO Generate a random id
           <.label(%.`for` := field.key)(label)
         )
       )
   }
 
-  def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A], label: String): Presenter[A] = new Presenter[A] {
-    def render(field: Field[A]): FormUi =
+  def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A, Frag], label: String): Presenter[A, Frag] = new Presenter[A, Frag] {
+    def render(field: Field[A]): Frag =
       layout(field)(
           <.label(%.`for` := field.key)(label) // TODO Generate a random id
       )(
-          <.dd(inputPresenter(field).render(field).html),
+          <.dd(inputPresenter(field).render(field)),
           for (error <- field.errors) yield <.dd(%.`class` := "error")(errorToMessage(error)),
           for (info <- infos(field.codec)) yield <.dd(%.`class` := "info")(info)
       )
   }
 
-  def layout(field: Field[_])(dtContent: Modifier*)(dds: Modifier*): FormUi =
-    FormUi(Seq(
-      <.dl((if (field.errors.nonEmpty) Seq(%.`class` := "error") else Nil): _*)(
-        <.dt(dtContent),
-        dds
-      )
-    ))
+  def layout(field: Field[_])(dtContent: Frag*)(dds: Frag*): Frag =
+    <.dl((if (field.errors.nonEmpty) Seq(%.`class` := "error") else Nil): _*)(
+      <.dt(dtContent),
+      dds
+    )
 
   // TODO Use i18n
   def errorToMessage(error: Throwable): String = error match {

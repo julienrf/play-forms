@@ -1,6 +1,5 @@
-package julienrf.forms.presenters
+package julienrf.forms
 
-import julienrf.forms.{FieldData, FormUi}
 import julienrf.forms.codecs.Codec
 
 /**
@@ -9,11 +8,18 @@ import julienrf.forms.codecs.Codec
  * The `A` type parameter can be used to define type-level computations to derive information from the field.
  *
  * @tparam A type of the field to render.
+ * @tparam B type of the output
  */
-trait Presenter[A] {
+trait Presenter[A, B] { outer =>
+  def render(field: Field[A]): B
 
-  def render(field: Field[A]): FormUi  // TODO Abstract over FormUi
-
+  /**
+   * Transforms the result of the rendering.
+   * @return A presenter that applies `f` to the rendering of this presenter.
+   */
+  def transform(f: B => B): Presenter[A, B] = new Presenter[A, B] {
+    def render(field: Field[A]): B = f(outer.render(field))
+  }
 }
 
 /**

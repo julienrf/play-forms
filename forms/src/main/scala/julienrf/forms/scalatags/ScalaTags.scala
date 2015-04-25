@@ -1,10 +1,11 @@
-package julienrf.forms.presenters
+package julienrf.forms.scalatags
 
+import julienrf.forms.SemiGroup
 import play.api.mvc.Call
 
-import scalatags.generic.Attrs
-import scalatags.Text.{Aggregate, Cap, TypedTag}
-import scalatags.text.{Builder, Tags}
+import _root_.scalatags.Text.{Aggregate, Cap, TypedTag}
+import _root_.scalatags.generic.Attrs
+import _root_.scalatags.text.{Builder, Tags}
 
 object ScalaTags {
 
@@ -20,7 +21,11 @@ object ScalaTags {
     type Tag = TypedTag[String]
   }
 
-  trait Implicits extends Aggregate with Cap
+  trait Implicits extends Aggregate with Cap {
+    implicit val modifierSemiGroup: SemiGroup[Frag] = new SemiGroup[Frag] {
+      def combine(lhs: Frag, rhs: Frag): Frag = Seq(lhs, rhs)
+    }
+  }
 
   trait Bundle extends Attr with Tag with Implicits
   object Bundle extends Bundle
