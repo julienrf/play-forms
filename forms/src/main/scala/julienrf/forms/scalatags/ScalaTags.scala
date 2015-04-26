@@ -1,11 +1,11 @@
 package julienrf.forms.scalatags
 
-import julienrf.forms.SemiGroup
-import play.api.mvc.Call
-
 import _root_.scalatags.Text.{Aggregate, Cap, TypedTag}
 import _root_.scalatags.generic.Attrs
 import _root_.scalatags.text.{Builder, Tags}
+
+import julienrf.forms.SemiGroup
+import play.api.mvc.Call
 
 object ScalaTags {
 

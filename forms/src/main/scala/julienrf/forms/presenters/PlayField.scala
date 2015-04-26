@@ -1,7 +1,7 @@
 package julienrf.forms.presenters
 
 import julienrf.forms._
-import julienrf.forms.codecs.Codec.{Opt, AndThen}
+import julienrf.forms.codecs.Codec.{AndThen, Opt}
 import julienrf.forms.codecs.Constraint.Min
 import julienrf.forms.codecs.{Codec, Error}
 

@@ -28,15 +28,13 @@ object FormTest extends Properties("Form") with Forms {
 
     def id[A](form: Form[A], data: FormData, a: A): Boolean =
       equal(form.inmap(identity[A], identity[A]), form, data, a)
-//      equal(toInvariantFunctorOps[Form.FormP[Seq[Field[A]]]#Ap, A](form).inmap(identity[A], identity[A]), form, data, a)
 
     def compose[A, B, C](form: Form[A], f1: A => B, f2: B => A, g1: B => C, g2: C => B, data: FormData, c: C): Boolean =
       equal(form.inmap(f1, f2).inmap(g1, g2), form.inmap(g1 compose f1, f2 compose g2), data, c)
-//      equal(toInvariantFunctorOps[Form.FormP[Seq[Field[A]]]#Ap, B](toInvariantFunctorOps[Form.FormP[Seq[Field[A]]]#Ap, A](form).inmap(f1, f2)).inmap(g1, g2), toInvariantFunctorOps[Form.FormP[Seq[Field[A]]]#Ap, A](form).inmap(g1 compose f1, f2 compose g2), data, c)
 
     val form = Form.field("foo", Codec.text)(presenter)
     id(form, Map("foo" -> ss), "bar")
-    compose[String, Int, Boolean](form, (s: String) => s.length, (n: Int) => n.toString, (n: Int) => n % 2 == 0, (b: Boolean) => if (b) 1 else 2, Map("foo" -> ss), true)
+    compose(form, (s: String) => s.length, (n: Int) => n.toString, (n: Int) => n % 2 == 0, (b: Boolean) => if (b) 1 else 2, Map("foo" -> ss), true)
   }
 
   property("apply") = forAll { (ss1: Seq[String], ss2: Seq[String]) =>
