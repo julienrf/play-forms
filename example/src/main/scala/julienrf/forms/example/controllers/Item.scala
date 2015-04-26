@@ -1,20 +1,18 @@
 package julienrf.forms.example.controllers
 
-import julienrf.forms.scalatags.Input.{options, enumOptions}
-import julienrf.forms.scalatags.{ScalaTags, PlayField}
-import julienrf.forms.scalatags.ScalaTags.Bundle.modifierSemiGroup
-import julienrf.forms.scalatags.Form
-import julienrf.forms.scalatags.Form.{field, form}
-import PlayField.{input, select, checkbox}
+import julienrf.forms.twirl.Input.{options, enumOptions}
+import julienrf.forms.twirl.Form
+import julienrf.forms.twirl.Form.{field, form}
+import julienrf.forms.twirl.PlayField.{input, select, checkbox}
+import julienrf.forms.twirl.semiGroup
 import julienrf.forms.codecs.Codec._
 import julienrf.forms.codecs.Constraint.min
-import play.api.http.Writeable
 import play.api.libs.functional.syntax._
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import play.twirl.api.Html
 
 import scala.concurrent.Future
-import scalatags.Text.Tag
 
 case class Item(detail: ItemDetail, categories: Seq[Category], isActive: Boolean)
 
@@ -66,7 +64,7 @@ object Item extends Controller {
    * Generate the HTML markup of the form
    */
   val create = Action {
-    Ok(htmlForm(itemForm.empty))
+    Ok(html.form(itemForm.empty))
   }
 
   /**
@@ -74,7 +72,7 @@ object Item extends Controller {
    */
   val edit = Action {
     val item = Item(ItemDetail("foo", 50, Some("description")), Seq(Furniture), isActive = false)
-    Ok(htmlForm(itemForm.render(item)))
+    Ok(html.form(itemForm.render(item)))
   }
 
   /**
@@ -83,31 +81,16 @@ object Item extends Controller {
    */
   val submission = Action(parse.urlFormEncoded) { request =>
     itemForm.decode(request.body) match {
-      case Left(errors) => BadRequest(htmlForm(errors))
+      case Left(errors) => BadRequest(html.form(errors))
       case Right(item) => Ok(item.toString)
     }
   }
 
-  val submission2 = Action(bodyParser(itemDetailForm, htmlForm)) { request =>
+  val submission2 = Action(bodyParser(itemDetailForm, html.form.f)) { request =>
     val item = request.body
     Ok(item.toString)
   }
 
-  def bodyParser[A](form: Form[A], html: ScalaTags.Bundle.Frag => Tag): BodyParser[A] = form.bodyParser(errors => Future.successful(BadRequest(html(errors))))
-
-  implicit val writeableTag: Writeable[Tag] = Writeable((tag: Tag) => tag.toString().getBytes(Codec.utf_8.charset), Some(HTML))
-
-  /**
-   * HTML template for the form
-   * @return A form tag containing the given fields and a submit button
-   */
-  def htmlForm(fields: ScalaTags.Bundle.Frag): Tag = {
-    import ScalaTags.Bundle._
-    val call = routes.Item.submission()
-    <.form(%.action := call.url, %.method := call.method)(
-      fields,
-      <.button("Submit")
-    )
-  }
+  def bodyParser[A](form: Form[A], html: Html => Html): BodyParser[A] = form.bodyParser(errors => Future.successful(BadRequest(html(errors))))
 
 }

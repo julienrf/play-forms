@@ -1,0 +1,4 @@
+@(data: Seq[(String, String)], fieldValue: Seq[String])
+@for((value, label) <- data) {
+  <option value="@value" @if(fieldValue.contains(value)) { selected }>@label</option>
+}

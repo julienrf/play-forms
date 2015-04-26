@@ -1,0 +1,4 @@
+@(field: julienrf.forms.Field[_], input: Html, infos: Seq[String], errorToMsg: Throwable => String)
+<dd>@input</dd>
+@for(error <- field.errors) { <dd class="error">@errorToMsg(error)</dd> }
+@for(info <- infos) { <dd class="info">@info</dd> }

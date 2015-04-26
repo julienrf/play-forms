@@ -1,0 +1,2 @@
+@(field: julienrf.forms.Field[_], attrs: Seq[(String, String)])
+<input type="checkbox" name="@field.key" value="true" @attrs.map { case (k, v) => { @Html(k)="@v" } } @if(field.value.nonEmpty){ checked } />

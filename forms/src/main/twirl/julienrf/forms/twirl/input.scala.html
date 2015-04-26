@@ -1,0 +1,2 @@
+@(field: julienrf.forms.Field[_], mandatory: Boolean, tpe: String, additionalAttrs: Seq[(String, String)])
+<input type="@tpe" name="@field.key" value="@field.value.headOption.getOrElse("")" @additionalAttrs.map { case (k, v) => { @Html(k)="@v" } } />

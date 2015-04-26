@@ -18,6 +18,7 @@ val commonSettings = Seq(
 )
 
 val `play-forms` = project.in(file("forms"))
+  .enablePlugins(SbtTwirl)
   .settings(commonSettings: _*)
   .settings(
     name := "play-forms",

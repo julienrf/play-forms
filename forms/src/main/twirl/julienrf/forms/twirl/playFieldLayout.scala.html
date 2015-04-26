@@ -1,0 +1,5 @@
+@(field: julienrf.forms.Field[_])(dtContent: Html*)(dds: Html*)
+<dl @if(field.errors.nonEmpty){ class="error" }>
+  <dt>@dtContent</dt>
+  @dds
+</dl>

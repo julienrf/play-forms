@@ -1,35 +1,15 @@
 package julienrf.forms.scalatags
 
 import julienrf.forms._
-import julienrf.forms.codecs.Codec.{AndThen, Opt}
-import julienrf.forms.codecs.Constraint.Min
-import julienrf.forms.codecs.{Codec, Error}
+import ScalaTags.Bundle._
 
-/**
- * Produces HTML similar to what form helpers built-in with Play produce, but with the following changes:
- *  - Fixes the problem with `optional(nonEmptyText)`
- *  - Adds HTML validation attributes to input tag
- */
-object PlayField {
-
-  import ScalaTags.Bundle._
-
-  /**
-   * Similar to Play’s `inputText` or `inputDate`. It automatically sets the input type according
-   * to the type parameter `A`. It works with numbers too.
-   */
-  // TODO Handle id, help, showConstraints, error, showErrors and additionalInputAttrs
-  def input[A : Mandatory : InputType](label: String): Presenter[A, Frag] =
-    withPresenter(field => Input.input[A]("id" -> field.key), label)
-
-  def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Seq[_root_.scalatags.Text.Tag]): Presenter[A, Frag] =
-    withPresenter(field => Input.select[A](opts), label)
+object PlayField extends julienrf.forms.presenters.PlayField[Frag](Input) {
 
   def checkbox(label: String): Presenter[Boolean, Frag] = new Presenter[Boolean, Frag] {
     def render(field: Field[Boolean]): Frag =
       layout(field)()(
         <.dd(
-          Input.checkbox("id" -> field.key).render(field), // TODO Generate a random id
+          Input.checkbox("id" -> field.key).render(field),
           <.label(%.`for` := field.key)(label)
         )
       )
@@ -38,7 +18,7 @@ object PlayField {
   def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A, Frag], label: String): Presenter[A, Frag] = new Presenter[A, Frag] {
     def render(field: Field[A]): Frag =
       layout(field)(
-          <.label(%.`for` := field.key)(label) // TODO Generate a random id
+          <.label(%.`for` := field.key)(label)
       )(
           <.dd(inputPresenter(field).render(field)),
           for (error <- field.errors) yield <.dd(%.`class` := "error")(errorToMessage(error)),
@@ -51,25 +31,5 @@ object PlayField {
       <.dt(dtContent),
       dds
     )
-
-  // TODO Use i18n
-  def errorToMessage(error: Throwable): String = error match {
-    case Error.Required => "This field is required"
-    case Error.MustBeAtLeast(n) => s"Must be greater or equal to $n"
-    case _ => "Invalid"
-  }
-
-  // TODO Use i18n
-  def infos[A : Mandatory](rule: Codec[_, A]): Seq[String] =
-    if (Mandatory[A].value) "Required" +: infosFromRules(rule)
-    else infosFromRules(rule)
-
-  // TODO Extensibility
-  def infosFromRules(rule: Codec[_, _]): Seq[String] = rule match {
-    case AndThen(lhs, rhs) => infosFromRules(lhs) ++ infosFromRules(rhs)
-    case Min(num) => Seq(s"Minimum value: $num")
-    case Opt(rule) => infosFromRules(rule)
-    case _ => Nil
-  }
 
 }

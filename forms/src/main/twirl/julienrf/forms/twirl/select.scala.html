@@ -1,0 +1,4 @@
+@(field: julienrf.forms.Field[_], mandatory: Boolean, multiple: Boolean, opts: Seq[String] => Html)
+<select name="@field.key" @if(mandatory){ required } @if(multiple){ multiple }>
+  @opts(field.value)
+</select>
