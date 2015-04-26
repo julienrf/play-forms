@@ -1,3 +1,3 @@
-GET         /        julienrf.forms.example.controllers.Item.create
-GET         /item    julienrf.forms.example.controllers.Item.edit
-POST        /        julienrf.forms.example.controllers.Item.submission
+GET         /        julienrf.forms.example.Item.create
+GET         /item    julienrf.forms.example.Item.edit
+POST        /        julienrf.forms.example.Item.submission

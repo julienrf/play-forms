@@ -1,15 +1,14 @@
-package julienrf.forms.example.controllers
+package julienrf.forms.example
 
-import julienrf.forms.twirl.Input.{options, enumOptions}
-import julienrf.forms.twirl.Form
-import julienrf.forms.twirl.Form.{field, form}
-import julienrf.forms.twirl.PlayField.{input, select, checkbox}
-import julienrf.forms.twirl.semiGroup
 import julienrf.forms.codecs.Codec._
 import julienrf.forms.codecs.Constraint.min
+import julienrf.forms.twirl.Form.{field, form}
+import julienrf.forms.twirl.Input.{enumOptions, options}
+import julienrf.forms.twirl.PlayField.{checkbox, input, select}
+import julienrf.forms.twirl.{Form, semiGroup}
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.functional.syntax._
 import play.api.mvc._
-import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.twirl.api.Html
 
 import scala.concurrent.Future
