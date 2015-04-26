@@ -1,6 +1,6 @@
 GET     /                          julienrf.forms.manual.Controller.index
 GET     /:page                     julienrf.forms.manual.Controller.page(page)
 
-POST    /getting-started/try-it    julienrf.forms.manual.GettingStarted.userPost
+POST    /quick-start/try-it    controllers.Application.userPost
 
 GET     /assets/*file              controllers.Assets.versioned(path = "/public", file)

@@ -1,0 +1,8 @@
+@(userFormFields: Html)
+
+@helper.form(routes.Application.userPost()) {
+
+  @userFormFields
+
+  <button>Save</button>
+}

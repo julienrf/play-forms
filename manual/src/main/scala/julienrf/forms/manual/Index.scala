@@ -4,7 +4,7 @@ object Index extends Document {
 
   val documents: Map[String, Document] = Map(
     "installation"    -> Installation,
-    "getting-started" -> GettingStarted
+    "quick-start" -> QuickStart
   )
 
   def findRev(document: Document): Option[String] =
@@ -17,7 +17,7 @@ object Index extends Document {
 ## Documentation
 
 - [Installation](${url(Installation)})
-- [Getting Started](${url(GettingStarted)})
+- [Quick Start](${url(QuickStart)})
 - [API Documentation](http://julienrf.github.io/play-forms/$version/api/)
 """
 

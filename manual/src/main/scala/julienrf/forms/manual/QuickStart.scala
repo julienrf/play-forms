@@ -1,11 +1,10 @@
 package julienrf.forms.manual
 
-import julienrf.forms.scalatags.{ScalaTags, PlayField}
+import julienrf.forms.manual.CodePresenter.ExprPresentation
 import play.api.mvc.Results.Ok
 import play.api.mvc.Action
-import Controller.writeableTag
 
-object GettingStarted extends Document {
+object QuickStart extends Document {
 
   val userDataCode = CodePresenter(new {
     case class UserData(name: String, age: Int)
@@ -17,10 +16,11 @@ object GettingStarted extends Document {
   //    "age" -> number.verifying(Constraints.min(0, strict = true))
   //  )(UserForm.apply)(UserForm.unapply))
   val userFormCode = CodePresenter (new {
-    import julienrf.forms.Form.field
+    import julienrf.forms.twirl.semiGroup
+    import julienrf.forms.twirl.Form.field
+    import julienrf.forms.twirl.PlayField.input
     import julienrf.forms.codecs.Codec.{int, text}
     import julienrf.forms.codecs.Constraint.min
-    import PlayField.input
     import play.api.libs.functional.syntax._
 
     val userForm = (
@@ -29,29 +29,24 @@ object GettingStarted extends Document {
     )(UserData.apply, unlift(UserData.unapply))
   })
 
-  object routes {
-    object Application {
-      def userPost() = julienrf.forms.manual.routes.GettingStarted.userPost()
-    }
-  }
-
 //  @(form: Form[UserForm])
 //    @helper.form(routes.Application.userPost()) {
 //      @helper.inputText(form("name"), '_label -> "Name")
 //      @helper.inputText(form("age"), '_label -> "Age")
 //      <button>Save</button>
 //    }
-    val formHtmlCode = CodePresenter (new {
-      import julienrf.forms.FormUi
-      import ScalaTags.Bundle._
-      import ScalaTags.form
-
-      def user(userFormUi: FormUi) =
-        form(routes.Application.userPost())(
-          userFormUi.html,
-          <.button("Save")
-        )
-    })
+    val formHtmlCode = ExprPresentation(
+      html.gettingStartedForm.f,
+      """
+        |@(userFormFields: Html)
+        |
+        |@helper.form(routes.Application.userPost()) {
+        |
+        |  @userFormFields
+        |
+        |  <button>Save</button>
+        |}""".stripMargin
+    )
 
 //  val showForm = Action {
 //    Ok(views.html.user(userForm))
@@ -59,7 +54,7 @@ object GettingStarted extends Document {
   import userFormCode.value.userForm
   object views {
     object html {
-      val user = formHtmlCode.value.user _
+      val user = formHtmlCode.value
     }
   }
   val showFormCode = CodePresenter {

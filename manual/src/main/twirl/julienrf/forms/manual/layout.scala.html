@@ -1,0 +1,18 @@
+@(document: Html)
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="stylesheet" href="@controllers.routes.Assets.versioned("prism.css")"/>
+    <link rel="stylesheet" href="@controllers.routes.Assets.versioned("style.css")"/>
+    <title>play-forms</title>
+  </head>
+  <body>
+    <h1><a href="@julienrf.forms.manual.routes.Controller.index()">play-forms</a></h1>
+    <article>
+      @document
+    </article>
+    <script src="@controllers.routes.Assets.versioned("prism.js")"></script>
+  </body>
+</html>
