@@ -17,7 +17,7 @@ abstract class PlayField[Out](input: Input[Out]) {
    */
   // TODO Handle id, help, showConstraints, error, showErrors and additionalInputAttrs
   def input[A : Mandatory : InputType](label: String): Presenter[A, Out] =
-    withPresenter(field => input.input[A]("id" -> field.key), label)
+    withPresenter(field => input.inputAttrs[A]("id" -> field.key), label)
 
   def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Out): Presenter[A, Out] =
     withPresenter(field => input.select[A](opts), label)

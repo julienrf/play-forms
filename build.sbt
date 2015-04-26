@@ -93,8 +93,7 @@ val manual = project.in(file("manual"))
 val `play-forms-project` = project.in(file("."))
   .settings(commonSettings: _*)
   .settings(
-    name := "play-forms-project",
-    includeFilter in (Assets, LessKeys.less) := "style.less"
+    name := "play-forms-project"
   ).dependsOn(`play-forms`)
   .aggregate(`play-forms`)
 

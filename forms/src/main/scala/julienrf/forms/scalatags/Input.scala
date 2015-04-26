@@ -5,7 +5,7 @@ import ScalaTags.Bundle._
 
 object Input extends julienrf.forms.presenters.Input[Frag] {
 
-  def input[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Frag] = new Presenter[A, Frag] {
+  def inputAttrs[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Frag] = new Presenter[A, Frag] {
     def render(field: Field[A]): Frag =
       <.input(
         %.`type` := InputType[A].tpe,
@@ -31,7 +31,7 @@ object Input extends julienrf.forms.presenters.Input[Frag] {
       )
   }
 
-  def checkbox(additionalAttrs: (String, String)*): Presenter[Boolean, Frag] = new Presenter[Boolean, Frag] {
+  def checkboxAttrs(additionalAttrs: (String, String)*): Presenter[Boolean, Frag] = new Presenter[Boolean, Frag] {
     def render(field: Field[Boolean]): Frag =
       <.input(
         %.`type` := "checkbox",

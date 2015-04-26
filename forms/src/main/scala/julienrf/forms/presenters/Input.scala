@@ -7,9 +7,9 @@ import julienrf.forms.codecs.Constraint.{And, Min}
 
 abstract class Input[Out] {
 
-  def input[A : Mandatory : InputType]: Presenter[A, Out] = input[A]()
+  def input[A : Mandatory : InputType]: Presenter[A, Out] = inputAttrs[A]()
 
-  def input[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Out]
+  def inputAttrs[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Out]
 
   def validationAttrs[A: Mandatory](codec: Codec[_, A]): Map[String, String] =
     if (Mandatory[A].value) validationAttrsFromCodecs(codec) + ("required" -> "required")
@@ -33,8 +33,8 @@ abstract class Input[Out] {
   def enumOptions[A](values: Set[A], keys: A => String, labels: A => String): Seq[(String, String)] =
     ("" -> "") +: (values.to[Seq] map (a => keys(a) -> labels(a)))
 
-  val checkbox: Presenter[Boolean, Out] = checkbox()
+  val checkbox: Presenter[Boolean, Out] = checkboxAttrs()
 
-  def checkbox(additionalAttrs: (String, String)*): Presenter[Boolean, Out]
+  def checkboxAttrs(additionalAttrs: (String, String)*): Presenter[Boolean, Out]
 
 }

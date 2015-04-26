@@ -5,7 +5,7 @@ import play.twirl.api.Html
 
 object Input extends julienrf.forms.presenters.Input[Html] {
 
-  def input[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Html] = new Presenter[A, Html] {
+  def inputAttrs[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Html] = new Presenter[A, Html] {
     def render(field: Field[A]): Html = html.input(
       field,
       Mandatory[A].value,
@@ -21,7 +21,7 @@ object Input extends julienrf.forms.presenters.Input[Html] {
     def render(field: Field[A]): Html = html.select(field, Mandatory[A].value, Multiple[A].value, opts)
   }
 
-  def checkbox(additionalAttrs: (String, String)*): Presenter[Boolean, Html] = new Presenter[Boolean, Html] {
+  def checkboxAttrs(additionalAttrs: (String, String)*): Presenter[Boolean, Html] = new Presenter[Boolean, Html] {
     def render(field: Field[Boolean]): Html = html.checkbox(field, additionalAttrs)
   }
 

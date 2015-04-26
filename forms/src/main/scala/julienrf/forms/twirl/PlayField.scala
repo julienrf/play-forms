@@ -7,7 +7,7 @@ object PlayField extends julienrf.forms.presenters.PlayField[Html](Input) {
 
   def checkbox(label: String): Presenter[Boolean, Html] = new Presenter[Boolean, Html] {
     def render(field: Field[Boolean]): Html =
-      layout(field)()(html.playFieldCheckboxDd(field, Input.checkbox("id" -> field.key).render(field), label))
+      layout(field)()(html.playFieldCheckboxDd(field, Input.checkboxAttrs("id" -> field.key).render(field), label))
   }
 
   def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A, Html], label: String): Presenter[A, Html] = new Presenter[A, Html] {

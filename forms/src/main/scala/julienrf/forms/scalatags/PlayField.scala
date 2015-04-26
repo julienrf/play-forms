@@ -9,7 +9,7 @@ object PlayField extends julienrf.forms.presenters.PlayField[Frag](Input) {
     def render(field: Field[Boolean]): Frag =
       layout(field)()(
         <.dd(
-          Input.checkbox("id" -> field.key).render(field),
+          Input.checkboxAttrs("id" -> field.key).render(field),
           <.label(%.`for` := field.key)(label)
         )
       )
