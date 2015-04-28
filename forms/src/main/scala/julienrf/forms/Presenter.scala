@@ -17,7 +17,7 @@ trait Presenter[A, B] { outer =>
    * Transforms the result of the rendering.
    * @return A presenter that applies `f` to the rendering of this presenter.
    */
-  def transform(f: B => B): Presenter[A, B] = new Presenter[A, B] {
+  final def transform(f: B => B): Presenter[A, B] = new Presenter[A, B] {
     def render(field: Field[A]): B = f(outer.render(field))
   }
 }
