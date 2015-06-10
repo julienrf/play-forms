@@ -1,6 +1,5 @@
 val commonSettings = Seq(
   organization := "org.julienrf",
-  version := "0.0.0-SNAPSHOT",
   scalaVersion := "2.11.6",
   scalacOptions ++= Seq(
     "-deprecation",
@@ -18,7 +17,7 @@ val commonSettings = Seq(
 )
 
 val `play-forms` = project.in(file("forms"))
-  .enablePlugins(SbtTwirl)
+  .enablePlugins(SbtTwirl, GitVersioning)
   .settings(commonSettings: _*)
   .settings(
     name := "play-forms",
