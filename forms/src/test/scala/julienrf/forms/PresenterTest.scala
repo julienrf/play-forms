@@ -12,7 +12,7 @@ object PresenterTest extends Properties("Presenter") {
     def transform[A, B](presenter: Presenter[A, B], field: Field[A], f: B => B): Boolean =
       presenter.transform(f).render(field) == f(presenter.render(field))
 
-    transform(p, Field("foo", codecs.Codec.int, Some(Seq("bar", "baz")), Nil), (_: Option[FieldData]).map(_.reverse))
+    transform(p, Field("foo", codecs.Codec.int, Some(Seq("bar", "baz")), Nil), (_: FieldData).map(_.reverse))
   }
 
   property("defaultValue") = {

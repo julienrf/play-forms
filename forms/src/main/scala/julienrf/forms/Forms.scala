@@ -151,12 +151,11 @@ trait Forms {
         def apply[A, B](fa: Form[A], fb: Form[B]): Form[A ~ B] = Apply(fa, fb)
       }
 
-    // TODO `codec: Codec[Option[FieldData], A]`
     private case class FieldForm[A](key: String, codec: Codec[FieldData, A], presenter: Presenter[A, Out]) extends Form[A] {
       def decode(data: FormData): Either[Out, A] = {
-        val value = data.getOrElse(key, Nil)
+        val value = data.get(key)
         codec.decode(value)
-          .left.map(errors => presenter.render(Field(key, codec, Some(value), errors)))
+          .left.map(errors => presenter.render(Field(key, codec, value, errors)))
       }
       def render(value: Option[A]): Out =
         presenter.render(Field(key, codec, value.flatMap(codec.encode), Nil))

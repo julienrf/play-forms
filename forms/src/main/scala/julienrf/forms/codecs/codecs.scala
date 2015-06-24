@@ -44,7 +44,7 @@ sealed abstract class Codec[A, B] {
    * @return the encoded value
    * @group primary
    */
-  def encode(b: B): Option[A] // FIXME return an `A`
+  def encode(b: B): A
 
   /**
    * Alias for [[andThen]]
@@ -83,7 +83,7 @@ sealed abstract class Codec[A, B] {
    *
    * @group combinators
    */
-  final def ? : Codec[A, Option[B]] = opt
+  final def ? [C](implicit ev: A <:< Option[C]): Codec[Option[C], Option[B]] = opt[C]
 
   /**
    * Optional combinator.
@@ -91,7 +91,8 @@ sealed abstract class Codec[A, B] {
    * @return a `Codec` that turns a failure into a successful `None` value
    * @group combinators
    */
-  final def opt: Codec[A, Option[B]] = Codec.Opt(this)
+  final def opt[C](implicit ev: A <:< Option[C]): Codec[Option[C], Option[B]] =
+    Codec.Opt(this.asInstanceOf[Codec[Option[C], B]])
 
 }
 
@@ -162,7 +163,7 @@ object Codec {
 
     def decode(a: A): Either[Seq[Throwable], C] = codec1.decode(a).right.flatMap(codec2.decode)
 
-    def encode(c: C): Option[A] = codec2.encode(c).flatMap(codec1.encode)
+    def encode(c: C): A = codec1.encode(codec2.encode(c))
 
   }
 
@@ -173,16 +174,16 @@ object Codec {
       case Left(_) => codec2.decode(a).right.map(c => Right(c))
     }
 
-    def encode(bOrC: Either[B, C]): Option[A] = bOrC match {
+    def encode(bOrC: Either[B, C]): A = bOrC match {
       case Left(b) => codec1.encode(b)
       case Right(c) => codec2.encode(c)
     }
 
   }
 
-  private[forms] final case class Opt[A, B](codec: Codec[A, B]) extends Codec[A, Option[B]] {
+  private[forms] final case class Opt[A, B](codec: Codec[Option[A], B]) extends Codec[Option[A], Option[B]] {
 
-    def decode(a: A): Either[Seq[Throwable], Option[B]] = Right(codec.decode(a).right.toOption)
+    def decode(a: Option[A]): Either[Seq[Throwable], Option[B]] = Right(codec.decode(a).right.toOption)
 
     def encode(maybeB: Option[B]): Option[A] = maybeB.flatMap(codec.encode)
 
@@ -194,12 +195,12 @@ object Codec {
   private[forms] case object Head extends Codec[FieldData, String] {
 
     def decode(fieldData: FieldData): Either[Seq[Throwable], String] =
-      fieldData.headOption.filter(_.nonEmpty) match {
+      fieldData.flatMap(_.headOption).filter(_.nonEmpty) match {
         case Some(s) => Right(s)
         case None => Left(Seq(Error.Required))
       }
 
-    def encode(string: String): Option[FieldData] = Some(Seq(string))
+    def encode(string: String): FieldData = Some(Seq(string))
 
   }
 
@@ -212,7 +213,7 @@ object Codec {
       case NonFatal(e) => Left(Seq(e))
     }
 
-    def encode(n: Int): Option[String] = Some(n.toString)
+    def encode(n: Int): String = n.toString
 
   }
 
@@ -221,7 +222,7 @@ object Codec {
 
     def decode(data: FieldData): Either[Seq[Throwable], Boolean] = Right(data.nonEmpty)
 
-    def encode(b: Boolean): Option[FieldData] = Some(if (b) Seq("true") else Seq.empty)
+    def encode(b: Boolean): FieldData = if (b) Some(Nil) else None
 
   }
 
@@ -247,7 +248,7 @@ object Codec {
       }
 
     // Assumes that valuesToKey is exhaustive
-    def encode(a: A): Option[String] = Some(valuesToKey(a))
+    def encode(a: A): String = valuesToKey(a)
 
   }
 
@@ -259,17 +260,19 @@ object Codec {
 
     // If one fails, decoding fails with the first error
     def decode(data: FieldData): Either[Seq[Throwable], Seq[A]] =
-      data.foldLeft[Either[Seq[Throwable], Seq[A]]](Right(Nil)) { (result, k) =>
-        result.right.flatMap { as =>
-          keysToValue.get(k) match {
-            case Some(a) => Right(as :+ a)
-            case None => Left(Seq(Error.Undefined))
+      data
+        .to[Seq].flatten
+        .foldLeft[Either[Seq[Throwable], Seq[A]]](Right(Nil)) { (result, k) =>
+          result.right.flatMap { as =>
+            keysToValue.get(k) match {
+              case Some(a) => Right(as :+ a)
+              case None => Left(Seq(Error.Undefined))
+            }
           }
         }
-      }
 
     // Assumes that valuesToKey is exhaustive
-    def encode(as: Seq[A]): Option[FieldData] = Some(as.map(valuesToKey))
+    def encode(as: Seq[A]): FieldData = Some(as.map(valuesToKey))
 
   }
 }
@@ -296,7 +299,7 @@ sealed abstract class Constraint[A] extends Codec[A, A] {
     case None => Right(a)
   }
 
-  final def encode(a: A): Option[A] = if (validate(a).isEmpty) Some(a) else None
+  final def encode(a: A): A = a
 
   /**
    * Alias for [[and]]

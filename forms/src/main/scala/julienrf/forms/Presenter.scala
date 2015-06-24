@@ -42,4 +42,4 @@ trait Presenter[A, B] { outer =>
  * @param errors the validation errors associated to the field.
  * @tparam A type of the field.
  */
-case class Field[A](key: String, codec: Codec[FieldData, A], value: Option[FieldData], errors: Seq[Throwable])
+case class Field[A](key: String, codec: Codec[FieldData, A], value: FieldData, errors: Seq[Throwable])
