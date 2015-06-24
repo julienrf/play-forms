@@ -23,7 +23,7 @@ object FormTest extends Properties("Form") with Forms {
     def equal[A](form1: Form[A], form2: Form[A], data: FormData, a: A): Boolean =
       form1.empty == form2.empty &&
       form1.decode(data) == form2.decode(data) &&
-      form1.render(a) == form2.render(a) &&
+      form1.fill(a) == form2.fill(a) &&
       form1.keys == form2.keys
 
     def id[A](form: Form[A], data: FormData, a: A): Boolean =
@@ -45,12 +45,12 @@ object FormTest extends Properties("Form") with Forms {
       form3.keys == form1.keys ++ form2.keys &&
       ((form1.decode(data), form2.decode(data), form3.decode(data)) match {
         case (Right(a), Right(b), Right((aa, bb))) => a == aa && b == bb
-        case (Left(es), Right(b), Left(ees))       => ees == es ++ form2.render(b)
-        case (Right(a), Left(es), Left(ees))       => ees == form1.render(a) ++ es
+        case (Left(es), Right(b), Left(ees))       => ees == es ++ form2.fill(b)
+        case (Right(a), Left(es), Left(ees))       => ees == form1.fill(a) ++ es
         case (Left(es1), Left(es2), Left(es3))     => es3 == es1 ++ es2
         case _                                     => false
       }) &&
-      form3.render((a, b)) == form1.render(a) ++ form2.render(b) &&
+      form3.fill((a, b)) == form1.fill(a) ++ form2.fill(b) &&
       form3.empty == form1.empty ++ form2.empty
     }
 

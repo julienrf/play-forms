@@ -44,7 +44,7 @@ sealed abstract class Codec[A, B] {
    * @return the encoded value
    * @group primary
    */
-  def encode(b: B): Option[A]
+  def encode(b: B): Option[A] // FIXME return an `A`
 
   /**
    * Alias for [[andThen]]

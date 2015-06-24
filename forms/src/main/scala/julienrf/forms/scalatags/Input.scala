@@ -10,7 +10,7 @@ object Input extends julienrf.forms.presenters.Input[Frag] {
       <.input(
         %.`type` := InputType[A].tpe,
         %.name := field.key,
-        %.value := field.value.headOption.getOrElse(""),
+        %.value := field.value.flatMap(_.headOption).getOrElse(""),
         (validationAttrs(field.codec) ++ additionalAttrs).map { case (n, v) => n.attr := v }.to[Seq]
       )
   }
@@ -27,7 +27,7 @@ object Input extends julienrf.forms.presenters.Input[Frag] {
         if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier],
         if (Multiple[A].value) Seq("multiple".attr := "multiple") else Seq.empty[Modifier]
       )(
-        opts(field.value)
+        field.value.fold[Frag](Seq.empty[Frag])(value => opts(value))
       )
   }
 

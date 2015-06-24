@@ -21,8 +21,7 @@ trait Forms {
   /**
    * An HTML form with one or more fields. It provides the following features:
    *  - decode the form data to an `A` value ;
-   *  - display an empty (not filled) form to the client ;
-   *  - display a filled form with and without validation errors.
+   *  - display a filled or empty form with and without validation errors.
    *
    * See the [[Form$ companion object’s documentation]] to know how to create a `Form[A, B]` value.
    */
@@ -39,14 +38,19 @@ trait Forms {
     /**
      * Presents the form (with fields pre-filled with data of the specified value).
      *
-     * @param a value to fill the form with
+     * @param value value to fill the form with, or `None` if the form is not filled
      */
-    def render(a: A): Out
+    def render(value: Option[A]): Out
 
     /**
-     * Presents the form (with empty — not filled — fields).
+     * Presents the form (with empty — not filled — fields). Shorthand for `render(None)`.
      */
-    def empty: Out
+    def empty: Out = render(None)
+
+    /**
+     * Presents the form with pre-filled data. Shorthand for `render(Some(value))`
+     */
+    def fill(value: A): Out = render(Some(value))
 
     /**
      * All the keys of `this` `Form`
@@ -147,14 +151,15 @@ trait Forms {
         def apply[A, B](fa: Form[A], fb: Form[B]): Form[A ~ B] = Apply(fa, fb)
       }
 
+    // TODO `codec: Codec[Option[FieldData], A]`
     private case class FieldForm[A](key: String, codec: Codec[FieldData, A], presenter: Presenter[A, Out]) extends Form[A] {
       def decode(data: FormData): Either[Out, A] = {
         val value = data.getOrElse(key, Nil)
         codec.decode(value)
-          .left.map(errors => presenter.render(Field(key, codec, value, errors)))
+          .left.map(errors => presenter.render(Field(key, codec, Some(value), errors)))
       }
-      def render(a: A): Out = presenter.render(Field(key, codec, codec.encode(a) getOrElse Nil, Nil))
-      def empty: Out = presenter.render(Field(key, codec, Nil, Nil))
+      def render(value: Option[A]): Out =
+        presenter.render(Field(key, codec, value.flatMap(codec.encode), Nil))
       def keys: Seq[String] = Seq(key)
     }
 
@@ -163,8 +168,7 @@ trait Forms {
         case Left(errors) => Left(errors)
         case Right(a) => Right(f1(a))
       }
-      def render(b: B): Out = fa.render(f2(b))
-      def empty: Out = fa.empty
+      def render(value: Option[B]): Out = fa.render(value.map(f2))
       def keys: Seq[String] = fa.keys
     }
 
@@ -172,12 +176,12 @@ trait Forms {
       require((fa.keys intersect fb.keys).isEmpty) // You can not have two fields with the same path
       def decode(data: FormData): Either[Out, A ~ B] = (fa.decode(data), fb.decode(data)) match {
         case (Right(a), Right(b)) => Right(new ~(a, b))
-        case (Right(a), Left(es)) => Left(SemiGroup[Out].combine(fa.render(a), es))
-        case (Left(es), Right(b)) => Left(SemiGroup[Out].combine(es, fb.render(b)))
+        case (Right(a), Left(es)) => Left(SemiGroup[Out].combine(fa.render(Some(a)), es))
+        case (Left(es), Right(b)) => Left(SemiGroup[Out].combine(es, fb.render(Some(b))))
         case (Left(es1), Left(es2)) => Left(SemiGroup[Out].combine(es1, es2))
       }
-      def render(ab: A ~ B): Out = SemiGroup[Out].combine(fa.render(ab._1), fb.render(ab._2))
-      def empty: Out = SemiGroup[Out].combine(fa.empty, fb.empty)
+      def render(value: Option[A ~ B]): Out =
+        SemiGroup[Out].combine(fa.render(value.map(_._1)), fb.render(value.map(_._2)))
       def keys: Seq[String] = fa.keys ++ fb.keys
     }
 

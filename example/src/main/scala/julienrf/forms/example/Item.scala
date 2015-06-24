@@ -8,7 +8,7 @@ import julienrf.forms.twirl.PlayField.{checkbox, input, select}
 import julienrf.forms.twirl.{Form, semiGroup}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.functional.syntax._
-import play.api.mvc._
+import play.api.mvc.{Controller, Action, BodyParser}
 import play.twirl.api.Html
 
 import scala.concurrent.Future
@@ -43,7 +43,7 @@ object Item extends Controller {
    */
   val itemDetailForm = (
     field("name", text)(input("Name")) ~ // A text field
-    field("price", int >=> min(42))(input("Price")) ~ // A number that must be greater or equal to 42
+    field("price", int >=> min(42))(input[Int]("Price").defaultValue(50)) ~ // A number that must be greater or equal to 42
     field("description", text.?)(input("Description")) // An optional text field
   )(ItemDetail.apply, unlift(ItemDetail.unapply))
 
@@ -71,7 +71,7 @@ object Item extends Controller {
    */
   val edit = Action {
     val item = Item(ItemDetail("foo", 50, Some("description")), Seq(Furniture), isActive = false)
-    Ok(html.form(itemForm.render(item)))
+    Ok(html.form(itemForm.fill(item)))
   }
 
   /**
@@ -90,6 +90,7 @@ object Item extends Controller {
     Ok(item.toString)
   }
 
-  def bodyParser[A](form: Form[A], html: Html => Html): BodyParser[A] = form.bodyParser(errors => Future.successful(BadRequest(html(errors))))
+  def bodyParser[A](form: Form[A], html: Html => Html): BodyParser[A] =
+    form.bodyParser(errors => Future.successful(BadRequest(html(errors))))
 
 }
