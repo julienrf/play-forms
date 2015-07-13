@@ -35,7 +35,7 @@ article * {
 
 article code {
   border-radius: 3px;
-  padding: .2em 0;
+  padding: .15em 0;
   margin: 0;
   /* Copied from prism.css */
   font-family: Consolas, Monaco, 'Andale Mono', monospace;
@@ -43,7 +43,7 @@ article code {
 }
 
 article code:before, article code:after {
-  letter-spacing: -0.2em;
+  letter-spacing: -0.3em;
   content: "\00a0"
 }
 

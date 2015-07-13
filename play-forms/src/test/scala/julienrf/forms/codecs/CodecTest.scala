@@ -27,7 +27,7 @@ object CodecTest extends Properties("Codec") {
   val boolean = forAll { (b: Boolean) =>
     laws.encodeDecode(Codec.boolean, b)
   }
-  val min = forAll { (n: Int, m: Int) =>
+  val greaterOrEqual = forAll { (n: Int, m: Int) =>
     val constraint = Constraint.greaterOrEqual(m)
     val result = constraint.decode(n)
     if (n >= m) succeeds(n, result) else result == Left(Seq(Error.MustBeAtLeast(m)))
@@ -52,7 +52,7 @@ object CodecTest extends Properties("Codec") {
     }
   }
 
-  property("codecs") = text && int && boolean && min && oneOf && severalOf
+  property("codecs") = text && int && boolean && greaterOrEqual && oneOf && severalOf
 
   property("constraints") = {
     def laws[A](constraint: Constraint[A], a: A): Boolean = {

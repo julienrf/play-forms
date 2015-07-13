@@ -18,7 +18,7 @@ object Index extends Document {
 
 - [Installation](${url(Installation)})
 - [Quick Start](${url(QuickStart)})
-- [API Documentation](http://julienrf.github.io/play-forms/$version/api/)
+- [API Documentation (`play-forms`)](http://julienrf.github.io/play-forms/$version/api/)
 """
 
 }

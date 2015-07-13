@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringEscapeUtils
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 
-object InputTest extends Properties("Input") {
+object ControlTest extends Properties("Control") {
 
   property("derive HTML validation attributes from Rule constraints") = {
 
