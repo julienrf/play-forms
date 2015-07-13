@@ -3,7 +3,7 @@ package julienrf.forms.twirl
 import julienrf.forms.{Mandatory, InputType, Presenter, Field, Multiple}
 import play.twirl.api.Html
 
-object Input extends julienrf.forms.presenters.Input[Html] {
+object Control extends julienrf.forms.presenters.Control[Html] {
 
   def inputAttrs[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Html] = new Presenter[A, Html] {
     def render(field: Field[A]): Html = html.input(

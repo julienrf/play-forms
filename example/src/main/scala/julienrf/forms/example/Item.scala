@@ -3,7 +3,7 @@ package julienrf.forms.example
 import julienrf.forms.codecs.Codec._
 import julienrf.forms.codecs.Constraint.greaterOrEqual
 import julienrf.forms.twirl.Form.{field, form}
-import julienrf.forms.twirl.Input.{enumOptions, options}
+import julienrf.forms.twirl.Control.{enumOptions, options}
 import julienrf.forms.twirl.PlayField.{checkbox, input, select}
 import julienrf.forms.twirl.{Form, semiGroup}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

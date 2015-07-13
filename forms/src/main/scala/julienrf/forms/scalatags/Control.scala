@@ -3,7 +3,7 @@ package julienrf.forms.scalatags
 import julienrf.forms._
 import ScalaTags.Bundle._
 
-object Input extends julienrf.forms.presenters.Input[Frag] {
+object Control extends julienrf.forms.presenters.Control[Frag] {
 
   def inputAttrs[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Frag] = new Presenter[A, Frag] {
     def render(field: Field[A]): Frag =

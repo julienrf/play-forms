@@ -5,7 +5,10 @@ import julienrf.forms.codecs.Codec
 import julienrf.forms.codecs.Codec._
 import julienrf.forms.codecs.Constraint.{Constrainable, And, GreaterOrEqual}
 
-abstract class Input[Out] {
+/**
+ * Defines common HTML controls (input and select).
+ */
+abstract class Control[Out] {
 
   def input[A : Mandatory : InputType]: Presenter[A, Out] = inputAttrs[A]()
 

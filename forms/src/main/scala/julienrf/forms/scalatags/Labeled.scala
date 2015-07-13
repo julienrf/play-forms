@@ -10,19 +10,25 @@ object Labeled {
   import ScalaTags.Bundle._
 
   def input[A : Mandatory : InputType](label: String): Presenter[A, Frag] =
-    left(label, Input.input[A])
+    left(label, Control.input[A])
 
   def checkbox(label: String): Presenter[Boolean, Frag] =
-    right(Input.checkbox, label)
+    right(Control.checkbox, label)
 
-  def left[A](label: String, input: Presenter[A, Frag]): Presenter[A, Frag] = new Presenter[A, Frag] {
+  /**
+   * @return a `label` tag containing the label and the control’s HTML fragment.
+   */
+  def left[A](control: String, input: Presenter[A, Frag]): Presenter[A, Frag] = new Presenter[A, Frag] {
     def render(field: Field[A]): Frag =
-      <.label(label, input.render(field))
+      <.label(control, input.render(field))
   }
 
-  def right[A](input: Presenter[A, Frag], label: String): Presenter[A, Frag] = new Presenter[A, Frag] {
+  /**
+   * @return a `label` tag containing the control’s HTML fragment and the label.
+   */
+  def right[A](control: Presenter[A, Frag], label: String): Presenter[A, Frag] = new Presenter[A, Frag] {
     def render(field: Field[A]): Frag =
-      <.label(input.render(field), label)
+      <.label(control.render(field), label)
   }
 
 }

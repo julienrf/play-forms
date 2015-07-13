@@ -6,21 +6,22 @@ import julienrf.forms.codecs.Constraint.GreaterOrEqual
 import julienrf.forms.codecs.{Codec, Error}
 
 /**
- * Produces HTML similar to what form helpers built-in with Play produce, but with the following changes:
+ * Enriches HTML presenters in order to produce markup similar to what form helpers built-in with Play produce, but with
+ * the following changes:
  *  - Fixes the problem with `optional(nonEmptyText)`
  *  - Adds HTML validation attributes to input tag
  */
-abstract class PlayField[Out](input: Input[Out]) {
+abstract class PlayField[Out](control: Control[Out]) {
   /**
    * Similar to Play’s `inputText` or `inputDate`. It automatically sets the input type according
    * to the type parameter `A`. It works with numbers too.
    */
   // TODO Handle id, help, showConstraints, error, showErrors and additionalInputAttrs
   def input[A : Mandatory : InputType](label: String): Presenter[A, Out] =
-    withPresenter(field => input.inputAttrs[A]("id" -> field.key), label)
+    withPresenter(field => control.inputAttrs[A]("id" -> field.key), label)
 
   def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Out): Presenter[A, Out] =
-    withPresenter(field => input.select[A](opts), label)
+    withPresenter(field => control.select[A](opts), label)
 
   def checkbox(label: String): Presenter[Boolean, Out]
 

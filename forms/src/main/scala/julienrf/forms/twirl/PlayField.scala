@@ -3,11 +3,11 @@ package julienrf.forms.twirl
 import julienrf.forms.{Mandatory, Field, Presenter}
 import play.twirl.api.{HtmlFormat, Html}
 
-object PlayField extends julienrf.forms.presenters.PlayField[Html](Input) {
+object PlayField extends julienrf.forms.presenters.PlayField[Html](Control) {
 
   def checkbox(label: String): Presenter[Boolean, Html] = new Presenter[Boolean, Html] {
     def render(field: Field[Boolean]): Html =
-      layout(field)()(html.playFieldCheckboxDd(field, Input.checkboxAttrs("id" -> field.key).render(field), label))
+      layout(field)()(html.playFieldCheckboxDd(field, Control.checkboxAttrs("id" -> field.key).render(field), label))
   }
 
   def withPresenter[A : Mandatory](inputPresenter: Field[A] => Presenter[A, Html], label: String): Presenter[A, Html] = new Presenter[A, Html] {

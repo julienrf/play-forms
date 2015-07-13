@@ -3,13 +3,13 @@ package julienrf.forms.scalatags
 import julienrf.forms._
 import ScalaTags.Bundle._
 
-object PlayField extends julienrf.forms.presenters.PlayField[Frag](Input) {
+object PlayField extends julienrf.forms.presenters.PlayField[Frag](Control) {
 
   def checkbox(label: String): Presenter[Boolean, Frag] = new Presenter[Boolean, Frag] {
     def render(field: Field[Boolean]): Frag =
       layout(field)()(
         <.dd(
-          Input.checkboxAttrs("id" -> field.key).render(field),
+          Control.checkboxAttrs("id" -> field.key).render(field),
           <.label(%.`for` := field.key)(label)
         )
       )

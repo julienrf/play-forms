@@ -28,8 +28,8 @@ object InputTest extends Properties("Input") {
     def p[A : Mandatory : InputType](nameAndMaybeValues: (String, Option[String])*)(rule: Codec[FieldData, A]): Boolean = {
       val path = "foo"
       val attrsWithoutRequired = nameAndMaybeValues.filter { case (n, _) => n != "required" }
-      val optRemovesRequired = hasOnlyValidationAttrs(attrsWithoutRequired: _*)(Form.field(path, rule.?)(Input.input))
-      hasOnlyValidationAttrs(nameAndMaybeValues: _*)(Form.field(path, rule)(Input.input)) && optRemovesRequired
+      val optRemovesRequired = hasOnlyValidationAttrs(attrsWithoutRequired: _*)(Form.field(path, rule.?)(Control.input))
+      hasOnlyValidationAttrs(nameAndMaybeValues: _*)(Form.field(path, rule)(Control.input)) && optRemovesRequired
     }
 
     p("required" -> None)(text) &&
@@ -41,7 +41,7 @@ object InputTest extends Properties("Input") {
 
   property("derive the input type according to the Reads type") = {
     def p[A : Mandatory : InputType](tpe: String)(rule: Codec[FieldData, A]): Boolean =
-      hasAttr("type", Some(tpe))(Form.field("foo", rule)(Input.input).empty)
+      hasAttr("type", Some(tpe))(Form.field("foo", rule)(Control.input).empty)
 
     p("text")(text) &&
     p("number")(int)
