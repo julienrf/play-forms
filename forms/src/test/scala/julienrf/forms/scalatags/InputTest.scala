@@ -2,7 +2,7 @@ package julienrf.forms.scalatags
 
 import julienrf.forms.codecs.Codec
 import julienrf.forms.codecs.Codec.{int, text}
-import julienrf.forms.codecs.Constraint.min
+import julienrf.forms.codecs.Constraint.greaterOrEqual
 import julienrf.forms.{Mandatory, InputType, FieldData}
 import org.apache.commons.lang3.StringEscapeUtils
 import org.scalacheck.Prop._
@@ -34,7 +34,7 @@ object InputTest extends Properties("Input") {
 
     p("required" -> None)(text) &&
     p("required" -> None)(int) &&
-    p("required" -> None, "min" -> Some("42"))(int >=> min(42))
+    p("required" -> None, "min" -> Some("42"))(int >=> greaterOrEqual(42))
   }
 
   property("the validation attributes derivation logic is extensible") = undecided

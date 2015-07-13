@@ -130,8 +130,8 @@ trait Forms {
      */
     def form[A](key: String, fa: Form[A])(implicit ev: SemiGroup[Out]): Form[A] = fa match {
       case FieldForm(subKey, codec, presenter) => FieldForm(s"$key.$subKey", codec, presenter)
-      case Form.InMap(fa, f1, f2) => Form.InMap(form(key, fa), f1, f2)
-      case Form.Apply(fa, fb) => Form.Apply(form(key, fa), form(key, fb))
+      case InMap(fa, f1, f2) => InMap(form(key, fa), f1, f2)
+      case Apply(fa, fb) => Apply(form(key, fa), form(key, fb))
     }
 
     /**

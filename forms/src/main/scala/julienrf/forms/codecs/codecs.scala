@@ -3,7 +3,6 @@ package julienrf.forms.codecs
 import julienrf.forms.FieldData
 import scala.util.control.NonFatal
 
-
 /**
  * As its name suggests, a `Codec[A, B]`, defines how to '''decode''' an `A` value to a `B` value, and, conversely,
  * how to '''encode''' a `B` value to an `A` value.
@@ -22,6 +21,8 @@ import scala.util.control.NonFatal
  * @groupprio primary 10
  */
 // FIXME Separate decode and encode and make B covariant and A contravariant?
+// FIXME Add flatZip?
+// FIXME Pull up `and`?
 sealed abstract class Codec[A, B] {
 
   /**
@@ -105,6 +106,9 @@ sealed abstract class Codec[A, B] {
  *
  * @groupname constraint Constraints
  * @groupprio constraint 20
+ *
+ * @groupname types Types
+ * @groupprio types 50
  */
 object Codec {
 
@@ -117,11 +121,16 @@ object Codec {
   val text: Codec[FieldData, String] = Head
 
   /**
+   * Attempts to decode a number from a text.
+   */
+  val toInt: Codec[String, Int] = ToInt
+
+  /**
    * Attempts to get an `Int` from the form field data.
    *
    * @group field
    */
-  val int: Codec[FieldData, Int] = Head >=> ToInt
+  val int: Codec[FieldData, Int] = text >=> toInt
 
   /**
    * Attempts to get a `Boolean` value form the form field data.
@@ -159,7 +168,12 @@ object Codec {
 
   // --- Combinators
 
-  private[forms] final case class AndThen[A, B, C](codec1: Codec[A, B], codec2: Codec[B, C]) extends Codec[A, C] {
+  /**
+   * Implementation of the [[Codec#andThen andThen]] combinator.
+   *
+   * @group types
+   */
+  final case class AndThen[A, B, C](codec1: Codec[A, B], codec2: Codec[B, C]) extends Codec[A, C] {
 
     def decode(a: A): Either[Seq[Throwable], C] = codec1.decode(a).right.flatMap(codec2.decode)
 
@@ -167,7 +181,12 @@ object Codec {
 
   }
 
-  private[forms] final case class OrElse[A, B, C](codec1: Codec[A, B], codec2: Codec[A, C]) extends Codec[A, Either[B, C]] {
+  /**
+   * Implementation of the [[Codec#orElse orElse]] combinator.
+   *
+   * @group types
+   */
+  final case class OrElse[A, B, C](codec1: Codec[A, B], codec2: Codec[A, C]) extends Codec[A, Either[B, C]] {
 
     def decode(a: A): Either[Seq[Throwable], Either[B, C]] = codec1.decode(a) match {
       case Right(b) => Right(Left(b))
@@ -181,7 +200,12 @@ object Codec {
 
   }
 
-  private[forms] final case class Opt[A, B](codec: Codec[Option[A], B]) extends Codec[Option[A], Option[B]] {
+  /**
+   * Implementation of the [[Codec#opt opt]] combinator.
+   *
+   * @group types
+   */
+  final case class Opt[A, B](codec: Codec[Option[A], B]) extends Codec[Option[A], Option[B]] {
 
     def decode(a: Option[A]): Either[Seq[Throwable], Option[B]] = Right(codec.decode(a).right.toOption)
 
@@ -192,7 +216,12 @@ object Codec {
 
   // --- Codecs
 
-  private[forms] case object Head extends Codec[FieldData, String] {
+  /**
+   * Attempts to take the first value of a field data.
+   *
+   * @group types
+   */
+  case object Head extends Codec[FieldData, String] {
 
     def decode(fieldData: FieldData): Either[Seq[Throwable], String] =
       fieldData.flatMap(_.headOption).filter(_.nonEmpty) match {
@@ -205,7 +234,12 @@ object Codec {
   }
 
 
-  private[forms] case object ToInt extends Codec[String, Int] {
+  /**
+   * Attempts to decode a text as a number.
+   *
+   * @group types
+   */
+  case object ToInt extends Codec[String, Int] {
 
     def decode(s: String): Either[Seq[Throwable], Int] = try {
       Right(s.toInt)
@@ -217,8 +251,12 @@ object Codec {
 
   }
 
-
-  private[forms] case object ToBoolean extends Codec[FieldData, Boolean] {
+  /**
+   * Implementation of the [[boolean]] codec.
+   *
+   * @group types
+   */
+  case object ToBoolean extends Codec[FieldData, Boolean] {
 
     def decode(data: FieldData): Either[Seq[Throwable], Boolean] = Right(data.nonEmpty)
 
@@ -235,7 +273,12 @@ object Codec {
 //
 //  }
 
-  private[forms] final case class OneOf[A](valuesToKey: Map[A, String]) extends Codec[String, A] {
+  /**
+   * Implementation of the [[oneOf]] codec.
+   *
+   * @group types
+   */
+  final case class OneOf[A](valuesToKey: Map[A, String]) extends Codec[String, A] {
 
     require (valuesToKey.values.to[Seq].distinct.size == valuesToKey.values.size)
 
@@ -252,7 +295,12 @@ object Codec {
 
   }
 
-  private[forms] final case class SeveralOf[A](valuesToKey: Map[A, String]) extends Codec[FieldData, Seq[A]] {
+  /**
+   * Implementation of the [[severalOf]] codec.
+   *
+   * @group types
+   */
+  final case class SeveralOf[A](valuesToKey: Map[A, String]) extends Codec[FieldData, Seq[A]] {
 
     require (valuesToKey.values.to[Seq].distinct.size == valuesToKey.values.size)
 
@@ -275,6 +323,13 @@ object Codec {
     def encode(as: Seq[A]): FieldData = Some(as.map(valuesToKey))
 
   }
+
+  /**
+   * Implement this trait to provide your own codecs.
+   *
+   * @group types
+   */
+  trait Codecable[A, B] extends Codec[A, B]
 }
 
 /**
@@ -319,19 +374,38 @@ sealed abstract class Constraint[A] extends Codec[A, A] {
 
 }
 
+/**
+ * @groupname values Values
+ * @groupprio values 10
+ *
+ * @groupname types Types
+ * @groupprio types 20
+ */
 object Constraint {
 
   /**
    * Checks that the decoded value is greater or equal to `n`
    *
-   * @group constraint
+   * @group values
    */
-  def min(n: Int): Constraint[Int] = Min(n)
+  def greaterOrEqual(n: Int): Constraint[Int] = GreaterOrEqual(n)
+
+  /**
+   * Alias for `greaterOrEqual`
+   * @group values
+   */
+  @inline
+  def ge(n: Int): Constraint[Int] = greaterOrEqual(n)
 
 
   // --- Combinators
 
-  private[forms] final case class And[A](constraint1: Constraint[A], constraint2: Constraint[A]) extends Constraint[A] {
+  /**
+   * Implementation of the [[Constraint#and and]] constraint.
+   *
+   * @group types
+   */
+  final case class And[A](constraint1: Constraint[A], constraint2: Constraint[A]) extends Constraint[A] {
 
     def validate(a: A): Option[Seq[Throwable]] = (constraint1.validate(a), constraint2.validate(a)) match {
       case (None, None) => None
@@ -345,16 +419,28 @@ object Constraint {
 
   // --- Constraints
 
-  private[forms] final case class Min(n: Int) extends Constraint[Int] {
+  /**
+   * Implementation of the [[greaterOrEqual]] constraint.
+   *
+   * @group types
+   */
+  final case class GreaterOrEqual(n: Int) extends Constraint[Int] {
 
     def validate(m: Int): Option[Seq[Throwable]] = if (m >= n) None else Some(Seq(Error.MustBeAtLeast(n)))
 
   }
+
+  /**
+   * Implement this trait to provide your own constraints.
+   *
+   * @group types
+   */
+  trait Constrainable[A] extends Constraint[A]
 
 }
 
 object Error {
   case object Required extends Throwable
   case class MustBeAtLeast(n: Int) extends Throwable
-  case object Undefined extends Throwable
+  case object Undefined extends Throwable // TODO Better name
 }

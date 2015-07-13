@@ -1,7 +1,7 @@
 package julienrf.forms.example
 
 import julienrf.forms.codecs.Codec._
-import julienrf.forms.codecs.Constraint.min
+import julienrf.forms.codecs.Constraint.greaterOrEqual
 import julienrf.forms.twirl.Form.{field, form}
 import julienrf.forms.twirl.Input.{enumOptions, options}
 import julienrf.forms.twirl.PlayField.{checkbox, input, select}
@@ -43,7 +43,7 @@ object Item extends Controller {
    */
   val itemDetailForm = (
     field("name", text)(input("Name")) ~ // A text field
-    field("price", int >=> min(42))(input[Int]("Price").defaultValue(50)) ~ // A number that must be greater or equal to 42
+    field("price", int >=> greaterOrEqual(42))(input[Int]("Price").defaultValue(50)) ~ // A number that must be greater or equal to 42
     field("description", text.?)(input("Description")) // An optional text field
   )(ItemDetail.apply, unlift(ItemDetail.unapply))
 

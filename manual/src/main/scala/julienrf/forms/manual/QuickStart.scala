@@ -20,12 +20,12 @@ object QuickStart extends Document {
     import julienrf.forms.twirl.Form.field
     import julienrf.forms.twirl.PlayField.input
     import julienrf.forms.codecs.Codec.{int, text}
-    import julienrf.forms.codecs.Constraint.min
+    import julienrf.forms.codecs.Constraint.greaterOrEqual
     import play.api.libs.functional.syntax._
 
     val userForm = (
       field("name", text)(input(label = "Name")) ~
-      field("age", int >=> min(0))(input(label = "Age"))
+      field("age", int >=> greaterOrEqual(0))(input(label = "Age"))
     )(UserData.apply, unlift(UserData.unapply))
   })
 

@@ -3,7 +3,7 @@ package julienrf.forms.presenters
 import julienrf.forms._
 import julienrf.forms.codecs.Codec
 import julienrf.forms.codecs.Codec._
-import julienrf.forms.codecs.Constraint.{And, Min}
+import julienrf.forms.codecs.Constraint.{Constrainable, And, GreaterOrEqual}
 
 abstract class Input[Out] {
 
@@ -20,9 +20,9 @@ abstract class Input[Out] {
     codec match {
       case AndThen(lhs, rhs) => validationAttrsFromCodecs(lhs) ++ validationAttrsFromCodecs(rhs)
       case And(lhs, rhs) => validationAttrsFromCodecs(lhs) ++ validationAttrsFromCodecs(rhs)
-      case Min(num) => Map("min" -> num.toString)
+      case GreaterOrEqual(num) => Map("min" -> num.toString)
       case Opt(codec) => validationAttrsFromCodecs(codec)
-      case Head | ToInt | ToBoolean | OrElse(_, _) | OneOf(_) | SeveralOf(_) => Map.empty
+      case Head | ToInt | ToBoolean | OrElse(_, _) | OneOf(_) | SeveralOf(_) | _: Codecable[x, y] | _: Constrainable[z] => Map.empty
     }
 
   def options(data: Seq[(String, String)])(fieldValue: Seq[String]): Out

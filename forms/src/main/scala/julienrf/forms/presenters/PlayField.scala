@@ -2,7 +2,7 @@ package julienrf.forms.presenters
 
 import julienrf.forms._
 import julienrf.forms.codecs.Codec.{AndThen, Opt}
-import julienrf.forms.codecs.Constraint.Min
+import julienrf.forms.codecs.Constraint.GreaterOrEqual
 import julienrf.forms.codecs.{Codec, Error}
 
 /**
@@ -43,7 +43,7 @@ abstract class PlayField[Out](input: Input[Out]) {
   // TODO Extensibility
   def infosFromRules(rule: Codec[_, _]): Seq[String] = rule match {
     case AndThen(lhs, rhs) => infosFromRules(lhs) ++ infosFromRules(rhs)
-    case Min(num) => Seq(s"Minimum value: $num")
+    case GreaterOrEqual(num) => Seq(s"Minimum value: $num")
     case Opt(rule) => infosFromRules(rule)
     case _ => Nil
   }
