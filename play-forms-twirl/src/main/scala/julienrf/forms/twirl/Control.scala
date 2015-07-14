@@ -10,7 +10,7 @@ object Control extends julienrf.forms.presenters.Control[Html] {
       field,
       Mandatory[A].value,
       InputType[A].tpe,
-      (validationAttrs(field.codec) ++ additionalAttrs).to[Seq]
+      (julienrf.forms.presenters.Control.validationAttrs(field.codec) ++ additionalAttrs).to[Seq]
     )
   }
 

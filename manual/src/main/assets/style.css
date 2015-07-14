@@ -54,3 +54,19 @@ article pre code:before, article pre code:after {
 article pre code {
   word-wrap: normal;
 }
+
+label {
+  display: block;
+  margin-bottom: 1em;
+}
+
+label > .label {
+  font-weight: bold;
+}
+
+label > input {
+  display: block;
+  width: 100%;
+  border: thin solid #CCC;
+  border-radius: 2px;
+}

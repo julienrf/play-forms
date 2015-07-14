@@ -16,16 +16,16 @@ object QuickStart extends Document {
   //    "age" -> number.verifying(Constraints.min(0, strict = true))
   //  )(UserForm.apply)(UserForm.unapply))
   val userFormCode = CodePresenter (new {
-    import julienrf.forms.twirl.semiGroup
+    import julienrf.forms.twirl.{semiGroup, TwirlInterpolation}
     import julienrf.forms.twirl.Form.field
-    import julienrf.forms.twirl.PlayField.input
+    import julienrf.forms.twirl.TypedField.input
     import julienrf.forms.codecs.Codec.{int, text}
     import julienrf.forms.codecs.Constraint.greaterOrEqual
     import play.api.libs.functional.syntax._
 
     val userForm = (
-      field("name", text)(input(label = "Name")) ~
-      field("age", int >=> greaterOrEqual(0))(input(label = "Age"))
+      field("name", text)(input(label = h"Name")) ~
+      field("age", int >=> greaterOrEqual(0))(input(label = h"Age"))
     )(UserData.apply, unlift(UserData.unapply))
   })
 
@@ -106,8 +106,9 @@ a **presenter**. The key is a unique identifier for the field, the codec defines
 and the presenter defines how to display the field to the client.
 
 Let’s have a closer look at the first field, whose key is `name`. Its codec is `text`, which tries to read the
-field data as a (non empty) `String` value. Finally, its presenter is `input(label = "Name")`, which produces an HTML
-markup similar to the `inputText` Play helper.
+field data as a (non empty) `String` value. Finally, its presenter is `input(label = h"Name")`, which produces an HTML
+markup containing a label and a control (the `h` interpolator produces an `Html` value, just like the Twirl template
+engine would do).
 
 The definition of the `age` field is similar, but it is worth noting that its codec also uses a constraint checking that
 the decoded number is positive.
@@ -139,7 +140,11 @@ the validation errors.
 
 Here is the output of the above code:
 
-${views.html.user(userForm.empty)}
+<div style="max-width: 30em; margin-left: auto; margin-right: auto; margin-bottom: 1em;">
+
+  ${views.html.user(userForm.empty)}
+
+</div>
 
 """
 }

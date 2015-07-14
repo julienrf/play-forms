@@ -11,7 +11,7 @@ object Control extends julienrf.forms.presenters.Control[Frag] {
         %.`type` := InputType[A].tpe,
         %.name := field.key,
         %.value := field.value.flatMap(_.headOption).getOrElse(""),
-        (validationAttrs(field.codec) ++ additionalAttrs).map { case (n, v) => n.attr := v }.to[Seq]
+        (julienrf.forms.presenters.Control.validationAttrs(field.codec) ++ additionalAttrs).map { case (n, v) => n.attr := v }.to[Seq]
       )
   }
 

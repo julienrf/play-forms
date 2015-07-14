@@ -33,6 +33,15 @@ trait Presenter[A, B] { outer =>
 
 }
 
+object Presenter {
+
+  def flatten[A, B](f: Field[A] => Presenter[A, B]): Presenter[A, B] =
+    new Presenter[A, B] {
+      def render(field: Field[A]): B = f(field).render(field)
+    }
+
+}
+
 /**
  * Form field.
  *
