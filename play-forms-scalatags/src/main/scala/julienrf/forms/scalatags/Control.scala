@@ -15,20 +15,18 @@ object Control extends julienrf.forms.presenters.Control[Frag] {
       )
   }
 
-  def options(data: Seq[(String, String)])(fieldValue: Seq[String]): Frag =
+  def options(data: Seq[(String, String)])(field: Field[_]): Frag =
     for ((value, label) <- data) yield {
-      <.option(%.value := value, if (fieldValue contains value) Seq("selected".attr := "selected") else Seq.empty[Modifier])(label)
+      <.option(%.value := value, if (field.value.exists(_.contains(value))) Seq("selected".attr := "selected") else Seq.empty[Modifier])(label)
     }
 
-  def select[A : Mandatory : Multiple](opts: Seq[String] => Frag): Presenter[A, Frag] = new Presenter[A, Frag] {
+  def select[A : Mandatory : Multiple](opts: Field[A] => Frag): Presenter[A, Frag] = new Presenter[A, Frag] {
     def render(field: Field[A]): Frag =
       <.select(
         %.name := field.key,
         if (Mandatory[A].value) Seq(%.required := "required") else Seq.empty[Modifier],
         if (Multiple[A].value) Seq("multiple".attr := "multiple") else Seq.empty[Modifier]
-      )(
-        field.value.fold[Frag](Seq.empty[Frag])(value => opts(value))
-      )
+      )(opts(field))
   }
 
   def checkboxAttrs(additionalAttrs: (String, String)*): Presenter[Boolean, Frag] = new Presenter[Boolean, Frag] {

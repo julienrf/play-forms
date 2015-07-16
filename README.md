@@ -8,7 +8,7 @@ This is a [work in progress](https://waffle.io/julienrf/play-forms).
 
 The design of the Play built-in form API suffers from several flaws:
 
-- `Form`s do not **compose** ;
+- `Form`s do not **compose** (ie. you can not define more complex forms from simpler forms) ;
 - Form UI and form model **duplicate** a lot of things ;
 - Extensibility _via_ `FieldConstructor` is **limited** due to inversion of control ;
 - Field selection is string-based (and therefore not **type-safe** nor refactoring-proof) ;

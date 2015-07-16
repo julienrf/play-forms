@@ -1,5 +1,7 @@
 package julienrf.forms
 
+import java.time.LocalDate
+
 import scala.language.higherKinds
 
 
@@ -10,6 +12,9 @@ object InputType {
   implicit val inputString: InputType[String] = InputType[String]("text")
   implicit val inputInt: InputType[Int] = InputType[Int]("number")
   implicit val inputDouble: InputType[Double] = InputType[Double]("number")
+  implicit val inputBigDecimal: InputType[BigDecimal] = InputType[BigDecimal]("number")
+  implicit val inputLocalDate: InputType[LocalDate] = InputType[LocalDate]("date")
+  implicit val inputFile: InputType[java.io.File] = InputType[java.io.File]("file")
   implicit def inputOption[A](implicit A: InputType[A]): InputType[Option[A]] = InputType[Option[A]](A.tpe)
 
   @inline def apply[A : InputType]: InputType[A] = implicitly[InputType[A]]

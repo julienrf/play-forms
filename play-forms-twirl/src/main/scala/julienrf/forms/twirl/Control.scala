@@ -14,11 +14,18 @@ object Control extends julienrf.forms.presenters.Control[Html] {
     )
   }
 
-  def options(data: Seq[(String, String)])(fieldValue: Seq[String]): Html =
-    html.options(data, fieldValue)
+  def options(data: Seq[(String, String)])(field: Field[_]): Html =
+    html"""
+      ${for((value, label) <- data) yield html"""<option value="$value" ${if(field.value.exists(_.contains(value))) "selected" else "" }>$label</option>""" }
+    """
 
-  def select[A : Mandatory : Multiple](opts: Seq[String] => Html): Presenter[A, Html] = new Presenter[A, Html] {
-    def render(field: Field[A]): Html = html.select(field, Mandatory[A].value, Multiple[A].value, opts)
+  def select[A : Mandatory : Multiple](opts: Field[A] => Html): Presenter[A, Html] = new Presenter[A, Html] {
+    def render(field: Field[A]): Html =
+      html"""
+        <select name="${field.key}" ${if(Mandatory[A].value) "required" else ""} ${if(Multiple[A].value) "multiple" else "" }>
+          ${opts(field)}
+        </select>
+      """
   }
 
   def checkboxAttrs(additionalAttrs: (String, String)*): Presenter[Boolean, Html] = new Presenter[Boolean, Html] {

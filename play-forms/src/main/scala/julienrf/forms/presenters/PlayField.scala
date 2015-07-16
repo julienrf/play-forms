@@ -20,7 +20,7 @@ abstract class PlayField[Out](control: Control[Out]) {
   def input[A : Mandatory : InputType](label: String): Presenter[A, Out] =
     withPresenter(field => control.inputAttrs[A]("id" -> field.key), label)
 
-  def select[A : Mandatory : Multiple](label: String, opts: Seq[String] => Out): Presenter[A, Out] =
+  def select[A : Mandatory : Multiple](label: String, opts: Field[A] => Out): Presenter[A, Out] =
     withPresenter(field => control.select[A](opts), label)
 
   def checkbox(label: String): Presenter[Boolean, Out]

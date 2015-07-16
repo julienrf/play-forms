@@ -55,16 +55,16 @@ article pre code {
   word-wrap: normal;
 }
 
-label {
+.field {
   display: block;
   margin-bottom: 1em;
 }
 
-label > .label {
+.field > .label {
   font-weight: bold;
 }
 
-label > input {
+.field > input {
   display: block;
   width: 100%;
   border: thin solid #CCC;

@@ -14,9 +14,9 @@ abstract class Control[Out] {
 
   def inputAttrs[A : Mandatory : InputType](additionalAttrs: (String, String)*): Presenter[A, Out]
 
-  def options(data: Seq[(String, String)])(fieldValue: Seq[String]): Out
+  def options(data: Seq[(String, String)])(field: Field[_]): Out
 
-  def select[A : Mandatory : Multiple](opts: Seq[String] => Out): Presenter[A, Out]
+  def select[A : Mandatory : Multiple](opts: Field[A] => Out): Presenter[A, Out]
 
   // TODO Do not add the empty first choice in the case of a multiple select
   def enumOptions[A](values: Set[A], keys: A => String, labels: A => String): Seq[(String, String)] =
@@ -41,7 +41,7 @@ object Control {
       case And(lhs, rhs) => validationAttrsFromCodecs(lhs) ++ validationAttrsFromCodecs(rhs)
       case GreaterOrEqual(num) => Map("min" -> num.toString)
       case Opt(codec) => validationAttrsFromCodecs(codec)
-      case Head | ToInt | ToBoolean | OrElse(_, _) | OneOf(_) | SeveralOf(_) | _: Codecable[x, y] | _: Constrainable[z] => Map.empty
+      case Head | ToInt | ToBigDecimal | ToBoolean | OrElse(_, _) | OneOf(_) | SeveralOf(_) | _: Codecable[x, y] | _: Constrainable[z] | ToLocalDate(_) => Map.empty
     }
 
 }

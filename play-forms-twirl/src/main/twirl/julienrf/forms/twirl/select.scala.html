@@ -1,6 +1,0 @@
-@(field: julienrf.forms.Field[_], mandatory: Boolean, multiple: Boolean, opts: Seq[String] => Html)
-<select name="@field.key" @if(mandatory){ required } @if(multiple){ multiple }>
-  @for(value <- field.value) {
-    @opts(value)
-  }
-</select>

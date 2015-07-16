@@ -1,5 +1,8 @@
 package julienrf.forms.codecs
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
 import julienrf.forms.FieldData
 import scala.util.control.NonFatal
 
@@ -132,6 +135,9 @@ object Codec {
    */
   val int: Codec[FieldData, Int] = text >=> toInt
 
+  val bigDecimal: Codec[FieldData, BigDecimal] =
+    Head >=> ToBigDecimal
+
   /**
    * Attempts to get a `Boolean` value form the form field data.
    *
@@ -160,6 +166,9 @@ object Codec {
    * @group field
    */
   def severalOf[A](valuesToKey: Map[A, String]): Codec[FieldData, Seq[A]] = SeveralOf(valuesToKey)
+
+  def localDate(format: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE): Codec[FieldData, LocalDate] =
+    Head >=> ToLocalDate(format)
 
   //  def partialFunction[A, B](f: PartialFunction[A, B]): A => Result[B] = a => {
 //    if (f.isDefinedAt(a)) Success(f(a))
@@ -251,6 +260,12 @@ object Codec {
 
   }
 
+  case object ToBigDecimal extends Codec[String, BigDecimal] {
+    def decode(s: String): Either[Seq[Throwable], BigDecimal] =
+      try { Right(BigDecimal(s)) } catch { case NonFatal(e) => Left(Seq(e)) }
+    def encode(n: BigDecimal): String = n.toString()
+  }
+
   /**
    * Implementation of the [[boolean]] codec.
    *
@@ -325,6 +340,18 @@ object Codec {
   }
 
   /**
+   * Implementation of the [[localDate]] codec.
+   *
+   * @param format Format to use to parse and render the date
+   * @group types
+   */
+  final case class ToLocalDate(format: DateTimeFormatter) extends Codec[String, LocalDate] {
+    def decode(s: String): Either[Seq[Throwable], LocalDate] =
+      try { Right(LocalDate.parse(s, format)) } catch { case NonFatal(e) => Left(Seq(e)) }
+    def encode(date: LocalDate): String = format.format(date)
+  }
+  
+  /**
    * Implement this trait to provide your own codecs.
    *
    * @group types
@@ -388,14 +415,14 @@ object Constraint {
    *
    * @group values
    */
-  def greaterOrEqual(n: Int): Constraint[Int] = GreaterOrEqual(n)
+  def greaterOrEqual[A : Numeric](n: A): Constraint[A] = GreaterOrEqual(n)
 
   /**
    * Alias for `greaterOrEqual`
    * @group values
    */
   @inline
-  def ge(n: Int): Constraint[Int] = greaterOrEqual(n)
+  def ge[A : Numeric](n: A): Constraint[A] = greaterOrEqual(n)
 
 
   // --- Combinators
@@ -424,9 +451,9 @@ object Constraint {
    *
    * @group types
    */
-  final case class GreaterOrEqual(n: Int) extends Constraint[Int] {
+  final case class GreaterOrEqual[A](n: A)(implicit numeric: Numeric[A]) extends Constraint[A] {
 
-    def validate(m: Int): Option[Seq[Throwable]] = if (m >= n) None else Some(Seq(Error.MustBeAtLeast(n)))
+    def validate(m: A): Option[Seq[Throwable]] = if (numeric.gteq(m, n)) None else Some(Seq(Error.MustBeAtLeast(n)))
 
   }
 
@@ -441,6 +468,6 @@ object Constraint {
 
 object Error {
   case object Required extends Throwable
-  case class MustBeAtLeast(n: Int) extends Throwable
+  case class MustBeAtLeast[A : Numeric](n: A) extends Throwable
   case object Undefined extends Throwable // TODO Better name
 }
